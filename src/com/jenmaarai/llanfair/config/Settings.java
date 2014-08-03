@@ -3,6 +3,9 @@ package com.jenmaarai.llanfair.config;
 import static com.jenmaarai.llanfair.config.SplitConfiguration.Category;
 import java.io.File;
 import java.util.Locale;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 
 /**
  * The configuration of Llanfair. Provides two levels of configuration, one
@@ -21,7 +24,9 @@ public enum Settings {
     
     private static SplitConfiguration local
             = new SplitConfiguration(new File("."));  
-
+    
+    private static EventListenerList listeners = new EventListenerList();
+    
     private Category category;
     private Class<?> type;
     private Object defaultValue;
@@ -43,6 +48,13 @@ public enum Settings {
         }
     }
     
+    public static void addPropertyChangeListener(ChangeListener pcl) {
+        if (pcl == null) {
+            throw new IllegalArgumentException("listener is null");
+        }
+        listeners.add(ChangeListener.class, pcl);
+    }
+    
     /**
      * Retrieves the value of this property. This method will first look into
      * the local configuration. If this property has been defined in the local
@@ -62,6 +74,21 @@ public enum Settings {
             return local.get(name());
         } else {
             return global.get(name());
+        }
+    }
+    
+    public void set(Object value, boolean locally) {
+        if (locally) {
+            local.set(name(), value);
+        } else {
+            global.set(name(), value);
+        }
+    }
+    
+    private void fireChangeEvent() {
+        ChangeEvent event = new ChangeEvent(this);
+        for (ChangeListener l : listeners.getListeners(ChangeListener.class)) {
+            l.stateChanged(event);
         }
     }
 

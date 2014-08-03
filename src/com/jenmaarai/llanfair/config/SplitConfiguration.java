@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A twist on the regular configuration to split it in multiple files. 
@@ -14,6 +16,9 @@ import java.util.Map;
  * enumerate values in {@code Category}.
  */
 class SplitConfiguration {
+    
+    private static final Logger LOG = Logger.getLogger(
+            SplitConfiguration.class.getName());
     
     private EnumMap<Category, Configuration> configurations;
     
@@ -101,18 +106,29 @@ class SplitConfiguration {
         throw new IllegalArgumentException("property " + key + " not found");
     }
     
+    public void set(String key, Object value) {
+        for (Configuration configuration : configurations.values()) {
+            if (configuration.has(key)) {
+                configuration.set(key, value);
+                return;
+            }
+        }
+    }    
+    
     /**
      * Loads the content of every sub configurations from their respective file.
      * This method must be call after every property have been defined. Any 
      * property read from a configuration file that has not been defined will be
      * discarded.
-     * 
-     * @throws IOException if a read operation failed
-     * @throws ParseException if a sub configuration is malformed
      */
-    public void load() throws IOException, ParseException {
+    public void load() {
         for (Configuration configuration : configurations.values()) {
-            configuration.load();
+            LOG.log(Level.INFO, "Parsing {0}", configuration.getPath());
+            try {
+                configuration.load();
+            } catch (IOException | ParseException e) {
+                LOG.log(Level.SEVERE, e.getMessage());
+            }
         }
     }
     
