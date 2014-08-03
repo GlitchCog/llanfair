@@ -2,3 +2,5 @@ build
 dist
 logs
 nbproject/private
+settings.cfg
+theme.cfg

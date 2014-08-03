@@ -2,6 +2,7 @@ package com.jenmaarai.llanfair.config;
 
 import com.jenmaarai.sidekick.config.Configuration;
 import com.jenmaarai.sidekick.error.ParseException;
+import com.jenmaarai.sidekick.locale.Localizer;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
@@ -106,6 +107,13 @@ class SplitConfiguration {
         throw new IllegalArgumentException("property " + key + " not found");
     }
     
+    /**
+     * Sets the value of the property of given key. While the new value can be
+     * null, the property must exist or an exception will be thrown.
+     * 
+     * @param key    the unique name of the property
+     * @param value  the new value to assign to the property
+     */
     public void set(String key, Object value) {
         for (Configuration configuration : configurations.values()) {
             if (configuration.has(key)) {
@@ -113,6 +121,7 @@ class SplitConfiguration {
                 return;
             }
         }
+        throw new IllegalArgumentException("property " + key + " not found");
     }    
     
     /**
@@ -128,6 +137,8 @@ class SplitConfiguration {
                 configuration.load();
             } catch (IOException | ParseException e) {
                 LOG.log(Level.SEVERE, e.getMessage());
+                Localizer.error(this, "loadFailure", configuration.getPath(), 
+                        e.getClass().getSimpleName(), e.getMessage());
             }
         }
     }

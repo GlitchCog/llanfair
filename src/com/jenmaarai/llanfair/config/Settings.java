@@ -46,13 +46,33 @@ public enum Settings {
         for (Settings set : values()) {
             global.define(set.category, set.type, set.name(), set.defaultValue);
         }
+        global.load();
     }
     
-    public static void addPropertyChangeListener(ChangeListener pcl) {
-        if (pcl == null) {
+    /**
+     * Registers a new listener with the settings. Whenever the value of any
+     * setting is modified, every listeners will be notified. The change event
+     * will contain the setting enum constant that has changed.
+     * 
+     * @param cl  the listener to register
+     */
+    public static void addChangeListener(ChangeListener cl) {
+        if (cl == null) {
             throw new IllegalArgumentException("listener is null");
         }
-        listeners.add(ChangeListener.class, pcl);
+        listeners.add(ChangeListener.class, cl);
+    }
+    
+    /**
+     * Removes the given listener from the list of listeners.
+     * 
+     * @param cl  the listener to remove
+     */
+    public static void removeChangeListener(ChangeListener cl) {
+        if (cl == null) {
+            throw new IllegalArgumentException("listener is null");
+        }
+        listeners.remove(ChangeListener.class, cl);
     }
     
     /**
@@ -77,14 +97,28 @@ public enum Settings {
         }
     }
     
+    /**
+     * Sets the value of this property. The caller must specify in which 
+     * configuration the value will be set. 
+     * 
+     * @param value    the new value of this property
+     * @param locally  true to set the value in the local configuration
+     */
     public void set(Object value, boolean locally) {
         if (locally) {
+            local.define(category, type, name(), defaultValue);
             local.set(name(), value);
         } else {
             global.set(name(), value);
         }
+        fireChangeEvent();
     }
     
+    // TODO: remove() to undefine a property from the local configuration
+    
+    /**
+     * Fires an event to all listeners that this property has changed.
+     */
     private void fireChangeEvent() {
         ChangeEvent event = new ChangeEvent(this);
         for (ChangeListener l : listeners.getListeners(ChangeListener.class)) {
