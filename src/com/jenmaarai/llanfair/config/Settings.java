@@ -2,6 +2,8 @@ package com.jenmaarai.llanfair.config;
 
 import static com.jenmaarai.llanfair.config.SplitConfiguration.Category;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -23,7 +25,7 @@ public enum Settings {
             = new SplitConfiguration(new File("."));
     
     private static SplitConfiguration local
-            = new SplitConfiguration(new File("."));  
+            = new SplitConfiguration(new File("runs"));  
     
     private static EventListenerList listeners = new EventListenerList();
     
@@ -47,6 +49,25 @@ public enum Settings {
             global.define(set.category, set.type, set.name(), set.defaultValue);
         }
         global.load();
+    }
+    
+    /**
+     * Writes the current value of each property to their respective file.
+     */
+    public static void save() {
+        global.save();
+        local.save();
+    }
+    
+    public static List<String> getUnsaved() {
+        List<String> list = new ArrayList<>();
+        for (Category category : global.getUnsavedCategories()) {
+            list.add("global/" + category);
+        }
+        for (Category category : local.getUnsavedCategories()) {
+            list.add("local/" + category);
+        }
+        return list;
     }
     
     /**

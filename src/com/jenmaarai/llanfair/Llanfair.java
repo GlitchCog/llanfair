@@ -3,10 +3,14 @@ package com.jenmaarai.llanfair;
 import com.jenmaarai.llanfair.config.Settings;
 import com.jenmaarai.sidekick.config.SimpleLoggerConfigurator;
 import com.jenmaarai.sidekick.locale.Localizer;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public class Llanfair extends JFrame {
@@ -18,7 +22,7 @@ public class Llanfair extends JFrame {
     
     public Llanfair() {
         super("Llanfair");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         
         try {
             SimpleLoggerConfigurator.setup(PKG);
@@ -27,6 +31,28 @@ public class Llanfair extends JFrame {
         }        
         Settings.initialize();
         System.out.println("" + Settings.LOCALE.<Locale>get());
+        
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                List<String> unsaved = Settings.getUnsaved();
+                if (!unsaved.isEmpty()) {
+                    // TODO: externalize to Sidekick Localizer
+                    int option = JOptionPane.showConfirmDialog(Llanfair.this, 
+                            "<html>" + Localizer.get(Llanfair.this, 
+                                "unsavedSettings", "" + unsaved) + "</html>");
+                    
+                    if (option == JOptionPane.YES_OPTION) {
+                        Settings.save();   
+                        dispose();
+                    } else if (option == JOptionPane.NO_OPTION) {
+                        dispose();
+                    }
+                } else {
+                    dispose();
+                }
+            }
+        });
     }
     
     public static void main(String[] args) {

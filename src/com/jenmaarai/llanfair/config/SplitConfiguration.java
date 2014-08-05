@@ -5,9 +5,9 @@ import com.jenmaarai.sidekick.error.ParseException;
 import com.jenmaarai.sidekick.locale.Localizer;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,13 +34,15 @@ class SplitConfiguration {
         if (root == null) {
             throw new IllegalArgumentException("root is null");
         }
-        if (!root.isDirectory()) {
-            throw new IllegalArgumentException("root must be a directory");
-        }
-        if (!root.canRead() || !root.canWrite()) {
-            throw new IllegalArgumentException("read/write denied to " + root);
-        }
-        if (!root.exists()) {
+        if (root.exists()) {
+            if (!root.isDirectory()) {
+                throw new IllegalArgumentException("root must be a directory");
+            }
+            if (!root.canRead() || !root.canWrite()) {
+                throw new IllegalArgumentException(
+                        "read/write access denied to " + root);
+            }
+        } else {
             if (!root.mkdir()) {
                 throw new IllegalArgumentException("failed to mkdir " + root);
             }
@@ -48,7 +50,8 @@ class SplitConfiguration {
         configurations = new EnumMap<>(Category.class);
         for (Category category : Category.values()) {
             configurations.put(category, 
-                    new Configuration(new File(root, category.path)));
+                    new Configuration(new File(root, category.path), 
+                        new CustomTypeParser()));
         }
     }
     
@@ -87,6 +90,23 @@ class SplitConfiguration {
             has &= configuration.has(key);
         }
         return has;
+    }
+    
+    /**
+     * Returns the list of sub configuration categories in the unsaved state.
+     * In other words, the list of categories where changes have been made to
+     * the configuration but not saved.
+     * 
+     * @return the list of unsaved configuration categories
+     */
+    public List<Category> getUnsavedCategories() {
+        List<Category> categories = new ArrayList<>();
+        for (Category category : Category.values()) {
+            if (configurations.get(category).hasUnsavedChanges()) {
+                categories.add(category);
+            }
+        }
+        return categories;
     }
     
     /**
@@ -135,10 +155,26 @@ class SplitConfiguration {
             LOG.log(Level.INFO, "Parsing {0}", configuration.getPath());
             try {
                 configuration.load();
-            } catch (IOException | ParseException e) {
+            } catch (IOException | ParseException | IllegalStateException e) {
                 LOG.log(Level.SEVERE, e.getMessage());
                 Localizer.error(this, "loadFailure", configuration.getPath(), 
                         e.getClass().getSimpleName(), e.getMessage());
+            }
+        }
+    }
+    
+    /**
+     * Saves the content of every sub configurations to their respective file.
+     */
+    public void save() {
+        for (Configuration configuration : configurations.values()) {
+            LOG.log(Level.INFO, "Writing {0}", configuration.getPath());
+            try {
+                configuration.save();
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, e.getMessage());
+                Localizer.error(this, "saveFailure", configuration.getPath(), 
+                        e.getMessage());
             }
         }
     }
@@ -176,6 +212,11 @@ class SplitConfiguration {
         
         private Category(String path) {
             this.path = path;
+        }
+
+        @Override
+        public String toString() {
+            return path;
         }
         
     }
