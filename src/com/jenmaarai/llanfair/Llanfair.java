@@ -29,7 +29,10 @@ public class Llanfair extends JFrame {
         } catch (IOException e) {
             Localizer.error(getClass(), "loggerFailure");
         }        
-        Settings.initialize();
+        
+        if (!Settings.initialize()) {
+            System.exit(-1);
+        }
         System.out.println("" + Settings.LOCALE.<Locale>get());
         
         addWindowListener(new WindowAdapter() {

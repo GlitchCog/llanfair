@@ -1,10 +1,13 @@
 package com.jenmaarai.llanfair.config;
 
 import static com.jenmaarai.llanfair.config.SplitConfiguration.Category;
+import com.jenmaarai.sidekick.locale.Localizer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
@@ -21,13 +24,10 @@ public enum Settings {
         
     LOCALE(Category.SETTING, Locale.class, Locale.ENGLISH);
     
-    private static SplitConfiguration global 
-            = new SplitConfiguration(new File("."));
-    
-    private static SplitConfiguration local
-            = new SplitConfiguration(new File("runs"));  
-    
+    private static SplitConfiguration global; 
+    private static SplitConfiguration local;
     private static EventListenerList listeners = new EventListenerList();
+    private static Logger LOG = Logger.getLogger(Settings.class.getName());
     
     private Category category;
     private Class<?> type;
@@ -43,12 +43,24 @@ public enum Settings {
      * Initialize the settings by defining every properties, and retrieving
      * their values from the files on disk. At this stage, only the global
      * configuration will be loaded.
+     * 
+     * @return true if the configuration has been properly initialized
      */
-    public static void initialize() {
-        for (Settings set : values()) {
-            global.define(set.category, set.type, set.name(), set.defaultValue);
+    public static boolean initialize() {
+        try {
+            global = new SplitConfiguration(new File("."));
+            local = new SplitConfiguration(new File("runs"));
+            
+             for (Settings set : values()) {
+                global.define(set.category, set.type, set.name(), set.defaultValue);
+            }
+            global.load();
+            return true;
+        } catch (IllegalArgumentException ex) {
+            LOG.log(Level.SEVERE, "init failure: {0}", ex.getMessage());
+            Localizer.error(Settings.class, "initFailure", ex.getMessage());
+            return false;
         }
-        global.load();
     }
     
     /**
@@ -59,6 +71,12 @@ public enum Settings {
         local.save();
     }
     
+    /**
+     * Returns the list of configuration files that have been changed but not
+     * yet saved.
+     * 
+     * @return the list of unsaved configurations name.
+     */
     public static List<String> getUnsaved() {
         List<String> list = new ArrayList<>();
         for (Category category : global.getUnsavedCategories()) {
