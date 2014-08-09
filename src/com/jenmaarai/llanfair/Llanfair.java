@@ -40,10 +40,8 @@ public class Llanfair extends JFrame {
             public void windowClosing(WindowEvent e) {
                 List<String> unsaved = Settings.getUnsaved();
                 if (!unsaved.isEmpty()) {
-                    // TODO: externalize to Sidekick Localizer
-                    int option = JOptionPane.showConfirmDialog(Llanfair.this, 
-                            "<html>" + Localizer.get(Llanfair.this, 
-                                "unsavedSettings", "" + unsaved) + "</html>");
+                    int option = Localizer.confirm(
+                            Llanfair.this, "unsavedSettings", unsaved);
                     
                     if (option == JOptionPane.YES_OPTION) {
                         Settings.save();   

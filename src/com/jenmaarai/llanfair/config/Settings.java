@@ -51,8 +51,9 @@ public enum Settings {
             global = new SplitConfiguration(new File("."));
             local = new SplitConfiguration(new File("runs"));
             
-             for (Settings set : values()) {
-                global.define(set.category, set.type, set.name(), set.defaultValue);
+            for (Settings set : values()) {
+                global.define(set.category, set.type,
+                        set.name(), set.defaultValue);
             }
             global.load();
             return true;
