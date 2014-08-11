@@ -77,6 +77,19 @@ class SplitConfiguration {
     }
     
     /**
+     * Undefines the property of given name from the configuration.
+     * 
+     * @param key  the unique name of the property to undefine
+     */
+    public void undefine(String key) {
+        for (Configuration configuration : configurations.values()) {
+            if (configuration.has(key)) {
+                configuration.undefine(key);
+            }
+        }
+    }
+    
+    /**
      * Indicates if a property of given key exists in this configuration.
      * Such a property exists if at least of the sub configurations has a 
      * property with that name.

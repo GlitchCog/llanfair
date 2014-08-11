@@ -154,7 +154,14 @@ public enum Settings {
         fireChangeEvent();
     }
     
-    // TODO: remove() to undefine a property from the local configuration
+    /**
+     * Undefines this property from the local configuration. Removing the
+     * property means that the next call to {@code get()} will return the value
+     * of the property as per the global configuration.
+     */
+    public void undefine() {
+        local.undefine(name());
+    }
     
     /**
      * Fires an event to all listeners that this property has changed.

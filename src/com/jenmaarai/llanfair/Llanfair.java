@@ -16,25 +16,53 @@ import javax.swing.SwingUtilities;
 public class Llanfair extends JFrame {
     
     private static final String PKG = Llanfair.class.getPackage().getName();
-    
     private static final Logger LOG = Logger.getLogger(PKG);
-    
     
     public Llanfair() {
         super("Llanfair");
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        
         try {
             SimpleLoggerConfigurator.setup(PKG);
         } catch (IOException e) {
             Localizer.error(getClass(), "loggerFailure");
         }        
-        
         if (!Settings.initialize()) {
             System.exit(-1);
         }
-        System.out.println("" + Settings.LOCALE.<Locale>get());
-        
+        setWindowBehavior();
+    }
+    
+    /**
+     * Main entry point of the application.
+     * 
+     * @param args  array of command line arguments
+     */
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                Llanfair instance = new Llanfair();
+                instance.display();
+            }
+        });
+    }
+    
+    /**
+     * Resolves the main frame on screen.
+     */
+    public void display() {
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+    
+    /**
+     * Initializes the behavior of this frame.
+     * When the user tries to close the main frame, we must check if any
+     * changes have been made to the application and ask the user if he wants
+     * to save them or not.
+     */
+    private void setWindowBehavior() {
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -54,22 +82,6 @@ public class Llanfair extends JFrame {
                 }
             }
         });
-    }
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Llanfair instance = new Llanfair();
-                instance.display();
-            }
-        });
-    }
-    
-    public void display() {
-        pack();
-        setLocationRelativeTo(null);
-        setVisible(true);
     }
 
 }
