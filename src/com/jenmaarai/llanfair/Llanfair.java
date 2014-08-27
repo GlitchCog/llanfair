@@ -1,13 +1,13 @@
 package com.jenmaarai.llanfair;
 
 import com.jenmaarai.llanfair.config.Settings;
+import com.jenmaarai.llanfair.view.Watch;
 import com.jenmaarai.sidekick.config.SimpleLoggerConfigurator;
 import com.jenmaarai.sidekick.locale.Localizer;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -15,8 +15,10 @@ import javax.swing.SwingUtilities;
 
 public class Llanfair extends JFrame {
     
-    private static final String PKG = Llanfair.class.getPackage().getName();
+    private static final String PKG = "com.jenmaarai";
     private static final Logger LOG = Logger.getLogger(PKG);
+    
+    private Watch watch;
     
     public Llanfair() {
         super("Llanfair");
@@ -29,6 +31,10 @@ public class Llanfair extends JFrame {
             System.exit(-1);
         }
         setWindowBehavior();
+        
+        // TODO: Temporary
+        watch = new Watch();
+        add(watch);
     }
     
     /**
@@ -82,6 +88,15 @@ public class Llanfair extends JFrame {
                 }
             }
         });
+    }
+
+    /**
+     * Release all resources and terminate.
+     */
+    @Override
+    public void dispose() {
+        super.dispose();
+        watch.stop();
     }
 
 }

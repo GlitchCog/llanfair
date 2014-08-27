@@ -12,5 +12,15 @@ public class Segment {
     private String shortName;
     private String fullName;
     private String splitCaption;
+    
+    public Segment(String name) {
+        if (name == null || name.equals("")) {
+            throw new IllegalArgumentException("name is null or empty");
+        }
+        icon = null;
+        shortName = name;
+        fullName = name;
+        splitCaption = "";
+    }
 
 }

@@ -14,5 +14,16 @@ public class Counter {
     private int start;
     private int step;
     private int value;
+    
+    public Counter(String name) {
+        if (name == null || name.equals("")) {
+            throw new IllegalArgumentException("name is null or empty");
+        }
+        icon = null;
+        this.name = name;
+        start = 0;        
+        value = 0;
+        step = 1;
+    }
 
 }

@@ -2,6 +2,7 @@ package com.jenmaarai.llanfair.config;
 
 import static com.jenmaarai.llanfair.config.SplitConfiguration.Category;
 import com.jenmaarai.sidekick.locale.Localizer;
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,8 @@ import javax.swing.event.EventListenerList;
  */
 public enum Settings {
         
-    LOCALE(Category.SETTING, Locale.class, Locale.ENGLISH);
+    LOCALE(Category.SETTING, Locale.class, Locale.ENGLISH),
+    COLOR_BACKGROUND(Category.THEME, Color.class, Color.decode("000000"));
     
     private static SplitConfiguration global; 
     private static SplitConfiguration local;
