@@ -27,7 +27,7 @@ public class Watch extends JPanel implements ActionListener {
         mainTimer = new JLabel(Time.ZERO.toString());
         timer.start();
         add(mainTimer);
-        setBackground(Settings.COLOR_BACKGROUND.<Color>get());
+        setBackground(Settings.colorBackground.<Color>get());
     }
     
     /**

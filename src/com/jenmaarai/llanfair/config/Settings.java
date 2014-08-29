@@ -1,12 +1,14 @@
 package com.jenmaarai.llanfair.config;
 
 import static com.jenmaarai.llanfair.config.SplitConfiguration.Category;
+import com.jenmaarai.llanfair.view.BlockView;
 import com.jenmaarai.sidekick.locale.Localizer;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.event.ChangeEvent;
@@ -23,9 +25,10 @@ import javax.swing.event.EventListenerList;
  */
 public enum Settings {
         
-    LOCALE(Category.SETTING, Locale.class, Locale.ENGLISH),
-    COLOR_BACKGROUND(Category.THEME, Color.class, Color.decode("000000"));
-    
+    locale(Category.SETTING, Locale.class, Locale.ENGLISH),
+    blockPlacement(Category.THEME, Map.class, BlockView.DEFAULT),
+    colorBackground(Category.THEME, Color.class, Color.decode("000000"));    
+       
     private static SplitConfiguration global; 
     private static SplitConfiguration local;
     private static EventListenerList listeners = new EventListenerList();
