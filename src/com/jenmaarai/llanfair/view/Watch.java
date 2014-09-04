@@ -7,14 +7,13 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.Timer;
 
 /**
  * Main component displaying the timer. The watch is also able to display a
  * secondary segment timer, and information relative to the current segment.
  */
-public class Watch extends JPanel implements ActionListener {
+public class Watch extends Block implements ActionListener {
     
     private Timer timer;
     private Run run;
@@ -23,11 +22,20 @@ public class Watch extends JPanel implements ActionListener {
     
     public Watch() {
         timer = new Timer(10, this);
-        run = new Run();
         mainTimer = new JLabel(Time.ZERO.toString());
-        timer.start();
+        
+        
         add(mainTimer);
         setBackground(Settings.colorBackground.<Color>get());
+    }
+    
+    @Override
+    public final void setRun(Run run) {
+        if (run == null) {
+            throw new IllegalArgumentException("run is null");
+        }
+        this.run = run;
+//        timer.start();
     }
     
     /**

@@ -1,6 +1,8 @@
 package com.jenmaarai.llanfair;
 
 import com.jenmaarai.llanfair.config.Settings;
+import com.jenmaarai.llanfair.model.Run;
+import com.jenmaarai.llanfair.view.BlockView;
 import com.jenmaarai.llanfair.view.Watch;
 import com.jenmaarai.sidekick.config.SimpleLoggerConfigurator;
 import com.jenmaarai.sidekick.locale.Localizer;
@@ -8,17 +10,20 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import org.jnativehook.GlobalScreen;
+import org.jnativehook.NativeHookException;
+import org.jnativehook.keyboard.NativeKeyEvent;
+import org.jnativehook.keyboard.NativeKeyListener;
 
-public class Llanfair extends JFrame {
+public class Llanfair extends JFrame implements NativeKeyListener {
     
     private static final String PKG = "com.jenmaarai";
     private static final Logger LOG = Logger.getLogger(PKG);
-    
-    private Watch watch;
     
     public Llanfair() {
         super("Llanfair");
@@ -30,11 +35,10 @@ public class Llanfair extends JFrame {
         if (!Settings.initialize()) {
             System.exit(-1);
         }
+        setNativeHook();
         setWindowBehavior();
         
-        // TODO: Temporary
-        watch = new Watch();
-        add(watch);
+        add(new BlockView(new Run()));
     }
     
     /**
@@ -59,6 +63,37 @@ public class Llanfair extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    @Override
+    public void nativeKeyPressed(NativeKeyEvent e) {
+        final NativeKeyEvent event = e;
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(event.paramString());
+            }
+        });
+    }
+
+    @Override
+    public void nativeKeyReleased(NativeKeyEvent e) {}
+
+    @Override
+    public void nativeKeyTyped(NativeKeyEvent e) {}
+    
+    /**
+     * Initialize the JNativeHook library to register out-of-focus input.
+     */
+    private void setNativeHook() {
+        try {
+            GlobalScreen.registerNativeHook();
+            GlobalScreen.getInstance().addNativeKeyListener(this);
+        } catch (NativeHookException ex) {
+            Localizer.error(getClass(), "nativeHookFailure", ex.getMessage());
+            LOG.log(Level.SEVERE, "NativeHookException: {0}", ex.getMessage());
+            System.exit(-1);
+        }
     }
     
     /**
@@ -96,7 +131,7 @@ public class Llanfair extends JFrame {
     @Override
     public void dispose() {
         super.dispose();
-        watch.stop();
+        GlobalScreen.unregisterNativeHook();
     }
 
 }

@@ -26,6 +26,7 @@ import javax.swing.event.EventListenerList;
 public enum Settings {
         
     locale(Category.SETTING, Locale.class, Locale.ENGLISH),
+    //keySplit(Category.SETTING, Integer)
     blockPlacement(Category.THEME, Map.class, BlockView.DEFAULT),
     colorBackground(Category.THEME, Color.class, Color.decode("000000"));    
        
