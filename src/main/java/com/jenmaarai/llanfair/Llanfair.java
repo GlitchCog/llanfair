@@ -1,5 +1,6 @@
 package com.jenmaarai.llanfair;
 
+import com.jenmaarai.llanfair.conf.Properties;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
@@ -17,6 +18,7 @@ public class Llanfair extends JFrame {
    private Llanfair() {
       super("Llanfair");
       LOG.info("...Application started");
+      Properties.load("default.cfg", false);
       setShutdownHook();
       resolve();
    }
@@ -37,6 +39,7 @@ public class Llanfair extends JFrame {
       addWindowListener(new WindowAdapter() {
          @Override public void windowClosed(WindowEvent event) {
             LOG.info("...Application closed");
+            Properties.save(false);
          }
       });
    }

@@ -1,0 +1,2 @@
+# Llanfair
+Llanfair is a timer tailored for speedrunners and developed in Java to be crossplatform and as such run on any operating system. This open-source project is a complete overhaul and improvement on the original Llanfair released in 2012 by myself (Xunkar). The project quickly garnered attention due to its new feautres and potential for customization, but it eventually grew too large and well over what I had envisionned. This overhaul will try to improve the overall stability of the application as well as implement new features.
