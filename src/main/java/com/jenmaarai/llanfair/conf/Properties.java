@@ -14,7 +14,17 @@ public enum Properties {
    /**
     * Whether this application should always be on top of other applications.
     */
-   alwaysOnTop(Boolean.class, false, false);
+   alwaysOnTop(Boolean.class, false, false),
+   
+   /**
+    * Screen coordinate of the application top left corner, along the x axis.
+    */
+   positionX(Integer.class, 0, true),
+   
+   /**
+    * Screen coordinate of the application top left corner, along the y axis.
+    */
+   positionY(Integer.class, 0, true);
    
    private static final Logger LOG = LoggerFactory.getLogger(Properties.class);
    
@@ -51,7 +61,10 @@ public enum Properties {
          }
       }
       try {
-         if (!configuration.load()) {
+         if (configuration.load()) {
+            STORES.put(theme, configuration);
+            return true;
+         } else {
             LOG.warn("Cannot find '{}' reverting to previous state", file);
             // ...unless we are defining the machine default configuration
             if (!STORES.containsKey(theme)) {
@@ -59,7 +72,6 @@ public enum Properties {
             }
             return false;
          }
-         return true;
       } catch (IOException x) {
          LOG.error("Cannot read '{}' cause: {}", file, x.getMessage());
          return false;
