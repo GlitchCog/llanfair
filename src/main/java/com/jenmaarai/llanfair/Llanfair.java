@@ -14,8 +14,6 @@ import javax.swing.SwingUtilities;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.SwingDispatchService;
-import org.jnativehook.keyboard.NativeKeyEvent;
-import org.jnativehook.keyboard.NativeKeyListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +65,8 @@ public class Llanfair extends JFrame {
       } catch (FileAlreadyExistsException x) {
          LOG.info("Default directories already created");
       } catch (IOException | SecurityException x) {
-         LOG.error("Cannot create default directories in '{}', cause: {}:{}", 
+         LOG.error(
+                 "Cannot create default directories in '{}', cause: {}:{}", 
                   Paths.get("."), x.getClass(), x.getMessage());
          Localizer.error(this, "errorDirectoryCreate", x.getMessage());
          System.exit(ERROR_DIRECTORY_CREATE);

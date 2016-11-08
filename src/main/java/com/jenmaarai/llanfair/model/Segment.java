@@ -32,7 +32,7 @@ public class Segment {
    }
 
    /**
-    * Returns the current saved time of this segment.
+    * Returns the split time of this segment.
     */
    public Time getTime() {
       return time;
@@ -63,7 +63,7 @@ public class Segment {
    }
 
    /**
-    * Sets the current saved time of this segment.
+    * Sets the split time of this segment.
     */
    public void setTime(Time time) {
       this.time = time;
