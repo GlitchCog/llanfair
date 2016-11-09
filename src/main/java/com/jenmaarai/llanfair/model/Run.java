@@ -80,7 +80,7 @@ public class Run {
     * Returns the split time of a specific segment.
     * May return null if the split time for the specific segment is undefined,
     * because the user forgot to split and skipped it during the run. 
-    * The returned  time will be based on real time (as opposed to game time).
+    * The returned time will be based on real time (as opposed to game time).
     */
    public Time getSplitTime(int segmentId) {
       if (segmentId < 0 || segmentId >= getSegmentCount()) {
@@ -88,6 +88,34 @@ public class Run {
          throw new IllegalArgumentException("invalid segment id");
       }
       return segments.get(segmentId).getTime();
+   }
+   
+   /**
+    * Returns the segment time of a specific segment.
+    * May return null if the specific segment or the preceding one has an
+    * undefined split time, usually because it has been skipped during the run.
+    * The returned time will be based on real time (as opposed to game time).
+    */
+   public Time getSegmentTime(int segmentId) {
+      if (segmentId < 0 || segmentId >= getSegmentCount()) {
+         LOG.error("Invalid segment id '{}'", segmentId);
+         throw new IllegalArgumentException("invalid segment id");
+      }
+      Time previous = segmentId == 0 ? Time.ZERO : getSplitTime(segmentId - 1);
+      return Time.delta(segments.get(segmentId).getTime(), previous);
+   }
+   
+   /**
+    * Returns the best recorded segment time of a specific segment.
+    * May return null if the run has not yet been completed once.
+    * The returned time will be based on real time (as opposed to game time).
+    */
+   public Time getSegmentBest(int segmentId) {
+      if (segmentId < 0 || segmentId >= getSegmentCount()) {
+         LOG.error("Invalid segment id '{}'", segmentId);
+         throw new IllegalArgumentException("invalid segment id");
+      }
+      return segments.get(segmentId).getBest();
    }
    
    /**
@@ -124,6 +152,7 @@ public class Run {
          throw new IllegalArgumentException("split time too low for segment");
       }
       segments.get(segmentId).setTime(split);
+      // TODO: Update best segment if needed
    }
    
    /**
@@ -156,5 +185,5 @@ public class Run {
          throw x;
       }
    }
-
+   
 }
