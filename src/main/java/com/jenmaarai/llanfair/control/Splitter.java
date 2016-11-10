@@ -33,6 +33,18 @@ public class Splitter {
    }
    
    /**
+    * Returns the elapsed time since the splitter was started.
+    * Splitter must be in {@code RUNNING} state.
+    */
+   public Time getElapsed() {
+      if (state != State.RUNNING) {
+         LOG.error("Splitter not running, current state {}", state);
+         throw new IllegalStateException("splitter not running");
+      }
+      return new Time(Clock.now() - start);
+   }
+   
+   /**
     * Immediately starts a new run.
     * Splitter must be in {@code READY} state to be started.
     */
