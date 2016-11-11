@@ -152,7 +152,7 @@ public class Run {
          throw new IllegalArgumentException("split time too low for segment");
       }
       segments.get(segmentId).setTime(split);
-      setSegmentBest(segmentId, getSegmentTime(segmentId));
+      lookForBestSegment(segmentId, split);
    }
    
    /**
@@ -201,6 +201,26 @@ public class Run {
          time = segment;
       }
       segments.get(segmentId).setBest(time);
+   }
+   
+   /**
+    * Sets a new best segment time for a specific segment, based on split time.
+    * Finds out the segment time from the given split and saves it as a new 
+    * best segment time if it is better than the current best segment time.
+    * The given split time itself is discarded.
+    */
+   public void lookForBestSegment(int segmentId, Time split) {
+      if (segmentId < 0 || segmentId >= getSegmentCount()) {
+         LOG.error("Invalid segment id '{}'", segmentId);
+         throw new IllegalArgumentException("invalid segment id");
+      }
+      Time previous = segmentId == 0 ? Time.ZERO : getSplitTime(segmentId - 1);
+      Time segment  = Time.delta(split, previous);
+      Time best     = getSegmentBest(segmentId);
+      
+      if (segment != null && segment.compareTo(best) < 0) {
+         setSegmentBest(segmentId, segment);
+      }
    }
    
 }

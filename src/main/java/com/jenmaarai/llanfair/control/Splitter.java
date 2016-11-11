@@ -16,6 +16,13 @@ public class Splitter {
    
    private long start = 0L;
    private State state = State.READY;
+
+   /**
+    * Returns the run being used by this splitter.
+    */
+   public Run getRun() {
+      return run;
+   }
    
    /**
     * Returns the current state of the splitter.
@@ -76,20 +83,36 @@ public class Splitter {
    }
    
    /**
-    * Validates the split times made during the attempt.
-    * New split times are saved as the personal best attempt for the current 
-    * run and best segment times are updated if necessary. Afterwards, the 
-    * splitter will be in {@code READY} state. The splitter must be in
-    * {@code OVER} state to be able to save the run.
+    * Resets the splitter after or during a run.
+    * If the splitter is in {@code OVER} state, the complete run will be saved
+    * if it is better, which includes saving the new best segments if the
+    * current attempt contains any. 
+    * 
+    * <p>If {@code save} is true, the new best segment times will be saved if 
+    * the current attempt contains any, even if the attempt is incomplete and 
+    * will itself be discarded.
+    * 
+    * <p>After this call, the splitter will be in {@code READY} state. The 
+    * splitter must be in {@code OVER} or {@code RUNNING state} to be reset.
     */
-   public void saveRun() {
-      if (state != State.OVER) {
-         LOG.error("Splitter not over, current state {}", state);
-         throw new IllegalStateException("splitter not over");
+   public void reset(boolean save) {
+      if (state == State.READY) {
+         LOG.error("Splitter is ready no sense in resetting");
+         throw new IllegalStateException("splitter is ready");
       }
-      run.setSplitTimes(times);
-      times.clear();
+      if (state == State.OVER) {
+         Time thisAttempt  = times.get(times.size() - 1);
+         Time personalBest = run.getTime();
+         if (thisAttempt.compareTo(personalBest) < 0) {
+            run.setSplitTimes(times);
+         }
+      } else if (save) {
+         for (int i = 0; i < times.size(); i++) {
+            run.lookForBestSegment(i, times.get(i));
+         }
+      }
       state = State.READY;
+      times.clear();
    }
    
    public enum State {
