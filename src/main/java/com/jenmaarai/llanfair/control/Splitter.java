@@ -56,23 +56,23 @@ public class Splitter {
    }
    
    /**
-    * Registers a new splitter listener.
+    * Registers a new split listener.
     * It will be notified of the various actions made by the splitter.
     */
-   public void addSplitterListener(SplitListener listener) {
+   public void addSplitListener(SplitListener listener) {
       if (listener == null) {
-         LOG.error("Null splitter listener");
+         LOG.error("Null split listener");
          throw new IllegalArgumentException("null listener");
       }
       listeners.add(SplitListener.class, listener);
    }
    
    /**
-    * Unregisters the specific splitter listener.
+    * Unregisters the specific split listener.
     */
-   public void removeSplitterListener(SplitListener listener) {
+   public void removeSplitListener(SplitListener listener) {
       if (listener == null) {
-         LOG.error("Null splitter listener");
+         LOG.error("Null split listener");
          throw new IllegalArgumentException("null listener");
       }
       listeners.remove(SplitListener.class, listener);
