@@ -4,6 +4,8 @@ import com.jenmaarai.llanfair.model.Run;
 import com.jenmaarai.sidekick.time.Time;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import javax.swing.event.EventListenerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,8 @@ public class Splitter {
    
    private long start = 0L;
    private State state = State.READY;
+   
+   private EventListenerList listeners = new EventListenerList();
 
    /**
     * Returns the run being used by this splitter.
@@ -52,6 +56,29 @@ public class Splitter {
    }
    
    /**
+    * Registers a new splitter listener.
+    * It will be notified of the various actions made by the splitter.
+    */
+   public void addSplitterListener(SplitListener listener) {
+      if (listener == null) {
+         LOG.error("Null splitter listener");
+         throw new IllegalArgumentException("null listener");
+      }
+      listeners.add(SplitListener.class, listener);
+   }
+   
+   /**
+    * Unregisters the specific splitter listener.
+    */
+   public void removeSplitterListener(SplitListener listener) {
+      if (listener == null) {
+         LOG.error("Null splitter listener");
+         throw new IllegalArgumentException("null listener");
+      }
+      listeners.remove(SplitListener.class, listener);
+   }
+   
+   /**
     * Immediately starts a new run.
     * Splitter must be in {@code READY} state to be started.
     */
@@ -62,6 +89,7 @@ public class Splitter {
       }
       start = Clock.now();
       state = State.RUNNING;
+      fireSplitEvent(SplitListener::onStart);
    }
    
    /**
@@ -79,6 +107,9 @@ public class Splitter {
       
       if (times.size() == run.getSegmentCount()) {
          state = State.OVER;
+         fireSplitEvent(SplitListener::onDone);
+      } else {
+         fireSplitEvent(SplitListener::onSplit);
       }
    }
    
@@ -113,6 +144,17 @@ public class Splitter {
       }
       state = State.READY;
       times.clear();
+      fireSplitEvent(SplitListener::onReset);
+   }
+   
+   /**
+    * Fires a split event to every split listeners.
+    */
+   private void fireSplitEvent(Consumer<SplitListener> operator) {
+      SplitListener[] array = listeners.getListeners(SplitListener.class);
+      for (SplitListener listener : array) {
+         operator.accept(listener);
+      }
    }
    
    public enum State {
