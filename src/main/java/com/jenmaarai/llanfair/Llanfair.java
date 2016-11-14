@@ -1,6 +1,8 @@
 package com.jenmaarai.llanfair;
 
 import com.jenmaarai.llanfair.conf.Properties;
+import com.jenmaarai.llanfair.control.Splitter;
+import com.jenmaarai.llanfair.view.BlockView;
 import com.jenmaarai.sidekick.locale.Localizer;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -14,6 +16,8 @@ import javax.swing.SwingUtilities;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.SwingDispatchService;
+import org.jnativehook.keyboard.NativeKeyEvent;
+import org.jnativehook.keyboard.NativeKeyListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +46,32 @@ public class Llanfair extends JFrame {
       configure();
       setNativeHook();
       setShutdownHook();
+      
+      // TODO: Temporary for proof of concept, needs cleaning
+      final Splitter splitter  = new Splitter();
+      BlockView      blockView = new BlockView(splitter);
+      
+      splitter.addSplitListener(blockView);
+      getContentPane().add(blockView);
+      
+      GlobalScreen.addNativeKeyListener(new NativeKeyListener() {
+         @Override
+         public void nativeKeyPressed(NativeKeyEvent e) {
+            if (e.getKeyCode() == NativeKeyEvent.VC_SPACE) {
+               if (splitter.getState() == Splitter.State.READY) {
+                  splitter.start();
+               } else if (splitter.getState() == Splitter.State.RUNNING) {
+                  splitter.split();
+               }
+            } else if (e.getKeyCode() == NativeKeyEvent.VC_R) {
+               if (splitter.getState() != Splitter.State.READY) {
+                  splitter.reset(false);
+               }
+            }
+         }
+         @Override public void nativeKeyReleased(NativeKeyEvent e) {}
+         @Override public void nativeKeyTyped(NativeKeyEvent e) {}
+      });
       resolve();
    }
    
