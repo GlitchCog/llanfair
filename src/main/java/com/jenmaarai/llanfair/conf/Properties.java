@@ -1,5 +1,6 @@
 package com.jenmaarai.llanfair.conf;
 
+import com.jenmaarai.llanfair.view.BlockLayout;
 import com.jenmaarai.sidekick.config.Configuration;
 import com.jenmaarai.sidekick.error.LineParserException;
 import java.io.File;
@@ -15,6 +16,11 @@ public enum Properties {
     * Whether this application should always be on top of other applications.
     */
    alwaysOnTop(Boolean.class, false, false),
+   
+   /**
+    * Complete layout of the application.
+    */
+   layout(BlockLayout.class, BlockLayout.defaultLayout(), true),
    
    /**
     * Screen coordinate of the application top left corner, along the x axis.
@@ -54,7 +60,7 @@ public enum Properties {
     * otherwise it will be loaded as a set of settings.
     */
    public static boolean load(String file, boolean theme) {
-      Configuration configuration = new Configuration(file);
+      Configuration configuration = new Configuration(file, new Parser());
       for (Properties p : values()) {
          if (p.isTheme == theme) {
             configuration.define(p.name(), p.type, p.defaultValue);
