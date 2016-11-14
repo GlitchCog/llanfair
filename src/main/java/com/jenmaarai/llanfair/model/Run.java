@@ -102,7 +102,7 @@ public class Run {
          throw new IllegalArgumentException("invalid segment id");
       }
       Time previous = segmentId == 0 ? Time.ZERO : getSplitTime(segmentId - 1);
-      return Time.delta(segments.get(segmentId).getTime(), previous);
+      return Time.difference(segments.get(segmentId).getTime(), previous);
    }
    
    /**
@@ -215,7 +215,7 @@ public class Run {
          throw new IllegalArgumentException("invalid segment id");
       }
       Time previous = segmentId == 0 ? Time.ZERO : getSplitTime(segmentId - 1);
-      Time segment  = Time.delta(split, previous);
+      Time segment  = Time.difference(split, previous);
       Time best     = getSegmentBest(segmentId);
       
       if (segment != null && segment.compareTo(best) < 0) {
