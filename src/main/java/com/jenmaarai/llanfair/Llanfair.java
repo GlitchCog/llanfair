@@ -1,6 +1,7 @@
 package com.jenmaarai.llanfair;
 
 import com.jenmaarai.llanfair.conf.Properties;
+import com.jenmaarai.llanfair.control.Input;
 import com.jenmaarai.llanfair.control.Splitter;
 import com.jenmaarai.llanfair.view.BlockView;
 import com.jenmaarai.sidekick.locale.Localizer;
@@ -35,6 +36,8 @@ public class Llanfair extends JFrame {
     */
    public static final int ERROR_NATIVE_HOOK = 2;
    
+   private Splitter splitter = new Splitter();
+   
    /**
     * Application building begins when a new Llanfair instance is invoked.
     */
@@ -46,32 +49,7 @@ public class Llanfair extends JFrame {
       configure();
       setNativeHook();
       setShutdownHook();
-      
-      // TODO: Temporary for proof of concept, needs cleaning
-      final Splitter splitter  = new Splitter();
-      BlockView      blockView = new BlockView(splitter);
-      
-      splitter.addSplitListener(blockView);
-      getContentPane().add(blockView);
-      
-      GlobalScreen.addNativeKeyListener(new NativeKeyListener() {
-         @Override
-         public void nativeKeyPressed(NativeKeyEvent e) {
-            if (e.getKeyCode() == NativeKeyEvent.VC_SPACE) {
-               if (splitter.getState() == Splitter.State.READY) {
-                  splitter.start();
-               } else if (splitter.getState() == Splitter.State.RUNNING) {
-                  splitter.split();
-               }
-            } else if (e.getKeyCode() == NativeKeyEvent.VC_R) {
-               if (splitter.getState() != Splitter.State.READY) {
-                  splitter.reset(false);
-               }
-            }
-         }
-         @Override public void nativeKeyReleased(NativeKeyEvent e) {}
-         @Override public void nativeKeyTyped(NativeKeyEvent e) {}
-      });
+      createView();
       resolve();
    }
    
@@ -119,6 +97,26 @@ public class Llanfair extends JFrame {
          Localizer.error(this, "errorNativeHook", x.getMessage());
          System.exit(ERROR_NATIVE_HOOK);
       }
+      
+      GlobalScreen.addNativeKeyListener(new NativeKeyListener() {
+         @Override
+         public void nativeKeyPressed(NativeKeyEvent event) {
+            Splitter.State state = splitter.getState();
+            if (Properties.keySplit.<Input>get().equals(event)) {
+               if (state == Splitter.State.READY) {
+                  splitter.start();
+               } else if (state == Splitter.State.RUNNING) {
+                  splitter.split();
+               } 
+            } else if (Properties.keyReset.<Input>get().equals(event)) {
+               if (state != Splitter.State.READY) {
+                  splitter.reset(false);
+               }
+            }
+         }
+         @Override public void nativeKeyReleased(NativeKeyEvent e) {}
+         @Override public void nativeKeyTyped(NativeKeyEvent e) {}
+      });
    }
    
    /**
@@ -143,6 +141,15 @@ public class Llanfair extends JFrame {
             LOG.info("...Application closed");
          }
       });
+   }
+   
+   /**
+    * Creates and places the UI element of this application.
+    */
+   private void createView() {
+      BlockView blockView = new BlockView(splitter);
+      splitter.addSplitListener(blockView);
+      getContentPane().add(blockView);
    }
    
    /**

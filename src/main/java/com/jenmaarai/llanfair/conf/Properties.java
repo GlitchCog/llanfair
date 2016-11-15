@@ -1,5 +1,6 @@
 package com.jenmaarai.llanfair.conf;
 
+import com.jenmaarai.llanfair.control.Input;
 import com.jenmaarai.llanfair.view.BlockLayout;
 import com.jenmaarai.sidekick.config.Configuration;
 import com.jenmaarai.sidekick.error.LineParserException;
@@ -16,6 +17,16 @@ public enum Properties {
     * Whether this application should always be on top of other applications.
     */
    alwaysOnTop(Boolean.class, false, false),
+   
+   /**
+    * Key stroke used to split the run, defaults to the spacebar.
+    */
+   keySplit(Input.class, new Input(57), false),
+   
+   /**
+    * Key stroke used to reset the run, defaults to the letter R.
+    */
+   keyReset(Input.class, new Input(19), false),
    
    /**
     * Complete layout of the application.
