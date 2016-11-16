@@ -1,8 +1,11 @@
 package com.jenmaarai.llanfair.view;
 
-import com.jenmaarai.llanfair.conf.Properties;
+import com.jenmaarai.llanfair.conf.Property;
 import com.jenmaarai.llanfair.control.Splitter;
+import com.jenmaarai.sidekick.swing.GBC;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,15 +18,16 @@ public class Timer extends Block {
    
    public Timer(Splitter splitter) {
       super(splitter);
-      add(mainTimer);
+      build();
+      propertyUpdated(null);
+   }
+   
+   private void build() {
+      mainTimer.setHorizontalAlignment(JLabel.RIGHT);
       
-      Color background = Properties.timerColorBackground.get();
-      if (background == null) {
-         setOpaque(false);
-      } else {
-         setOpaque(true);
-         setBackground(background);
-      }
+      setLayout(new GridBagLayout());
+      add(mainTimer, GBC.grid(0, 0).anchor(GBC.CENTER)
+                     .fill(GBC.HORIZONTAL).weight(1.0f, 1.0f));
    }
 
    @Override public void onStart() {
@@ -46,5 +50,21 @@ public class Timer extends Block {
       mainTimer.setText("Ready");
       callback.shutdownNow();
    }
+
+   @Override public void propertyUpdated(Property property) {
+      if (property == null || property.name().startsWith("timer")) {
+         Color background = Property.timerColorBackground.get();
+         if (background == null) {
+            setOpaque(false);
+         } else {
+            setOpaque(true);
+            setBackground(background);
+         }
+         Font font = Property.timerMainFont.get();
+         mainTimer.setFont(font);
+      }
+   }
+   
+   
    
 }

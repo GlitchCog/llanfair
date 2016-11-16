@@ -21,7 +21,6 @@ public abstract class Block extends    JPanel
          throw new IllegalArgumentException("null splitter");
       }
       this.splitter = splitter;
-      propertyUpdated(null);
    }
    
 }

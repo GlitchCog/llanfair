@@ -5,6 +5,7 @@ import com.jenmaarai.llanfair.view.BlockLayout;
 import com.jenmaarai.sidekick.config.Configuration;
 import com.jenmaarai.sidekick.error.LineParserException;
 import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public enum Properties {
+public enum Property {
    
    /**
     * Whether this application should always be on top of other applications.
@@ -40,6 +41,11 @@ public enum Properties {
    timerColorBackground(Color.class, null, true),
    
    /**
+    * Main font for the Timer block.
+    */
+   timerMainFont(Font.class, Font.decode("Arial 26"), true),
+   
+   /**
     * Screen coordinate of the application top left corner, along the x axis.
     */
    positionX(Integer.class, 0, true),
@@ -49,7 +55,7 @@ public enum Properties {
     */
    positionY(Integer.class, 0, true);
    
-   private static final Logger LOG = LoggerFactory.getLogger(Properties.class);
+   private static final Logger LOG = LoggerFactory.getLogger(Property.class);
    
    private static final Map<Boolean, Configuration> STORES = new HashMap<>();
    
@@ -57,7 +63,7 @@ public enum Properties {
    private final Object defaultValue;
    private final boolean isTheme;
    
-   private Properties(Class<?> type, Object defaultValue, boolean isTheme) {
+   private Property(Class<?> type, Object defaultValue, boolean isTheme) {
       this.type = type;
       this.defaultValue = defaultValue;
       this.isTheme = isTheme;
@@ -78,7 +84,7 @@ public enum Properties {
     */
    public static boolean load(String file, boolean theme) {
       Configuration configuration = new Configuration(file, new Parser());
-      for (Properties p : values()) {
+      for (Property p : values()) {
          if (p.isTheme == theme) {
             configuration.define(p.name(), p.type, p.defaultValue);
          }
