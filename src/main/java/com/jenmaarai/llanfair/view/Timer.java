@@ -1,5 +1,6 @@
 package com.jenmaarai.llanfair.view;
 
+import com.jenmaarai.llanfair.conf.Properties;
 import com.jenmaarai.llanfair.control.Splitter;
 import java.awt.Color;
 import java.util.concurrent.Executors;
@@ -15,6 +16,14 @@ public class Timer extends Block {
    public Timer(Splitter splitter) {
       super(splitter);
       add(mainTimer);
+      
+      Color background = Properties.timerColorBackground.get();
+      if (background == null) {
+         setOpaque(false);
+      } else {
+         setOpaque(true);
+         setBackground(background);
+      }
    }
 
    @Override public void onStart() {

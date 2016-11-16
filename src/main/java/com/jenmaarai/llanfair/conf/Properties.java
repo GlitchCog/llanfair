@@ -4,6 +4,7 @@ import com.jenmaarai.llanfair.control.Input;
 import com.jenmaarai.llanfair.view.BlockLayout;
 import com.jenmaarai.sidekick.config.Configuration;
 import com.jenmaarai.sidekick.error.LineParserException;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,6 +33,11 @@ public enum Properties {
     * Complete layout of the application.
     */
    layout(BlockLayout.class, BlockLayout.defaultLayout(), true),
+   
+   /**
+    * Background color for the Timer block.
+    */
+   timerColorBackground(Color.class, null, true),
    
    /**
     * Screen coordinate of the application top left corner, along the x axis.
@@ -83,18 +89,19 @@ public enum Properties {
             return true;
          } else {
             LOG.warn("Cannot find '{}' reverting to previous state", file);
-            // ...unless we are defining the machine default configuration
-            if (!STORES.containsKey(theme)) {
-               STORES.put(theme, configuration);
-            }
             return false;
          }
       } catch (IOException x) {
          LOG.error("Cannot read '{}' cause: {}", file, x.getMessage());
          return false;
       } catch (LineParserException x) {
-         LOG.error("Cannot parse '{}' cause: {}", file, x);
+         LOG.error("Cannot parse '{}' cause: {}", file, x.toString());
          return false;
+      } finally {
+         // Ensure default configuration exists
+         if (!STORES.containsKey(theme)) {
+            STORES.put(theme, configuration);
+         }
       }
    }
    
