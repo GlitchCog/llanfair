@@ -1,6 +1,7 @@
 package com.jenmaarai.llanfair.view;
 
-import com.jenmaarai.llanfair.conf.Properties;
+import com.jenmaarai.llanfair.conf.Property;
+import com.jenmaarai.llanfair.conf.PropertyListener;
 import com.jenmaarai.llanfair.control.SplitListener;
 import com.jenmaarai.llanfair.control.Splitter;
 import com.jenmaarai.sidekick.swing.GBC;
@@ -15,14 +16,15 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BlockView extends JPanel implements SplitListener {
+public class BlockView extends    JPanel 
+                       implements SplitListener, PropertyListener {
    
    private static final Logger LOG = LoggerFactory.getLogger(BlockView.class);
    
    private final Splitter splitter;
    
    private final List<Block> instances = new ArrayList<>();
-   private final BlockLayout blockLayout = Properties.layout.get();
+   private final BlockLayout blockLayout = Property.layout.get();
    
    public BlockView(Splitter splitter) {
       this.splitter = splitter;
@@ -62,7 +64,8 @@ public class BlockView extends JPanel implements SplitListener {
                     = chunk.getBlockClass().getConstructor(Splitter.class);
             
             Block block = ctor.newInstance(splitter);
-            panel.add(block, GBC.grid(chunk.getX(), chunk.getY()));
+            panel.add(block, GBC.grid(chunk.getX(), chunk.getY())
+                              .fill(GBC.BOTH).weight(1.0f, 1.0f));
             instances.add(block);
             
          } catch ( NoSuchMethodException    | SecurityException 
@@ -91,5 +94,10 @@ public class BlockView extends JPanel implements SplitListener {
    @Override public void onReset() {
       instances.stream().forEach((block) -> block.onReset());
    }
+
+   @Override public void propertyUpdated(Property property) {
+      instances.stream().forEach((block) -> block.propertyUpdated(property));
+   }
+   
 
 }

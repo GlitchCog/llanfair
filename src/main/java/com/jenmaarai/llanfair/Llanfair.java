@@ -1,6 +1,6 @@
 package com.jenmaarai.llanfair;
 
-import com.jenmaarai.llanfair.conf.Properties;
+import com.jenmaarai.llanfair.conf.Property;
 import com.jenmaarai.llanfair.control.Input;
 import com.jenmaarai.llanfair.control.Splitter;
 import com.jenmaarai.llanfair.view.BlockView;
@@ -79,8 +79,8 @@ public class Llanfair extends JFrame {
          Localizer.error(this, "errorDirectoryCreate", x.getMessage());
          System.exit(ERROR_DIRECTORY_CREATE);
       }
-      Properties.load("settings/default.lls", false);
-      Properties.load("themes/default.llt", true);
+      Property.load("settings/default.lls", false);
+      Property.load("themes/default.llt", true);
    }
    
    /**
@@ -102,13 +102,13 @@ public class Llanfair extends JFrame {
          @Override
          public void nativeKeyPressed(NativeKeyEvent event) {
             Splitter.State state = splitter.getState();
-            if (Properties.keySplit.<Input>get().equals(event)) {
+            if (Property.keySplit.<Input>get().equals(event)) {
                if (state == Splitter.State.READY) {
                   splitter.start();
                } else if (state == Splitter.State.RUNNING) {
                   splitter.split();
                } 
-            } else if (Properties.keyReset.<Input>get().equals(event)) {
+            } else if (Property.keyReset.<Input>get().equals(event)) {
                if (state != Splitter.State.READY) {
                   splitter.reset(false);
                }
@@ -136,8 +136,8 @@ public class Llanfair extends JFrame {
                   LOG.warn("Failed to clean native hook ({})", x.getMessage());
                }
             }
-            Properties.save(false);
-            Properties.save(true);
+            Property.save(false);
+            Property.save(true);
             LOG.info("...Application closed");
          }
       });
