@@ -36,6 +36,11 @@ public enum Property {
    layout(BlockLayout.class, BlockLayout.defaultLayout(), true),
    
    /**
+    * Font for the Title block.
+    */
+   titleFont(Font.class, Font.decode("Arial 26"), true),
+   
+   /**
     * Background color for the Timer block.
     */
    timerColorBackground(Color.class, null, true),
@@ -43,7 +48,7 @@ public enum Property {
    /**
     * Main font for the Timer block.
     */
-   timerMainFont(Font.class, Font.decode("Arial 26"), true),
+   timerMainFont(Font.class, Font.decode("Arial 36"), true),
    
    /**
     * Screen coordinate of the application top left corner, along the x axis.

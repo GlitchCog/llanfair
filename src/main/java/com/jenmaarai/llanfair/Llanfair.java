@@ -112,6 +112,9 @@ public class Llanfair extends JFrame {
                if (state != Splitter.State.READY) {
                   splitter.reset(false);
                }
+            // TODO: Temp test until run editing is available
+            } else if (event.getKeyCode() == NativeKeyEvent.VC_T) {
+               splitter.getRun().setGame("Zelda");
             }
          }
          @Override public void nativeKeyReleased(NativeKeyEvent e) {}
