@@ -119,6 +119,8 @@ public class BlockLayout {
             
          } catch (ClassNotFoundException | ClassCastException x) {
             LOG.error("Illegal class in chunk '{}'", matcher.group(1));
+         } catch (ExceptionInInitializerError x) {
+            LOG.error("Error during instantiation of '{}'", matcher.group(1));
          } catch (NumberFormatException x) {
             LOG.error(
                     "Illegal coordinates in chunk '{},{}'", 
