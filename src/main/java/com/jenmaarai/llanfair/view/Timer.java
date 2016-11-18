@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 public class Timer extends Block {
 
    private ScheduledExecutorService callback;
-   private JLabel mainTimer = new JLabel("--");
+   private JLabel mainTimer;
    
    public Timer(Splitter splitter) {
       super(splitter);
@@ -23,7 +23,7 @@ public class Timer extends Block {
    }
    
    private void build() {
-      mainTimer.setHorizontalAlignment(JLabel.RIGHT);
+      mainTimer = new JLabel("--", JLabel.RIGHT);
       
       setLayout(new GridBagLayout());
       add(mainTimer, GBC.grid(0, 0).anchor(GBC.CENTER)
@@ -51,7 +51,10 @@ public class Timer extends Block {
       callback.shutdownNow();
    }
 
-   @Override public void propertyUpdated(Property property) {
+   @Override public void onRunUpdate() {
+   }
+   
+   @Override public final void propertyUpdated(Property property) {
       if (property == null || property.name().startsWith("timer")) {
          Color background = Property.timerColorBackground.get();
          if (background == null) {
@@ -64,7 +67,5 @@ public class Timer extends Block {
          mainTimer.setFont(font);
       }
    }
-   
-   
    
 }

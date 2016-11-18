@@ -25,4 +25,9 @@ public interface SplitListener extends EventListener {
     */
    void onDone();
    
+   /**
+    * Callback invoked when the run structure or info changes.
+    */
+   void onRunUpdate();
+   
 }

@@ -94,10 +94,13 @@ public class BlockView extends    JPanel
    @Override public void onReset() {
       instances.stream().forEach((block) -> block.onReset());
    }
+   
+   @Override public void onRunUpdate() {
+      instances.stream().forEach((block) -> block.onRunUpdate());
+   }
 
    @Override public void propertyUpdated(Property property) {
       instances.stream().forEach((block) -> block.propertyUpdated(property));
    }
-   
 
 }

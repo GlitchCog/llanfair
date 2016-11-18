@@ -3,6 +3,9 @@ package com.jenmaarai.llanfair.model;
 import com.jenmaarai.sidekick.time.Time;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,14 +13,15 @@ public class Run {
    
    private static final Logger LOG = LoggerFactory.getLogger(Run.class);
    
-   private String game;
-   private String abbreviation;
-   private String category;
-   private String platform;
-   private String region;
-   private boolean emulated;
+   private String  game         = null;
+   private String  abbreviation = null;
+   private String  category     = null;
+   private String  platform     = null;
+   private String  region       = null;
+   private boolean emulated     = false;
    
-   private List<Segment> segments = new ArrayList<>();
+   private List<Segment>     segments  = new ArrayList<>();
+   private EventListenerList listeners = new EventListenerList();
    
    /**
     * Creates an empty run containing a single segment.
@@ -25,12 +29,32 @@ public class Run {
    public Run() {
       segments.add(new Segment());
    }
+   
+   /**
+    * Registers a change listener with this run.
+    * The change listener is notified whenever any changes happen to this run.
+    */
+   public void addChangeListener(ChangeListener listener) {
+      if (listener == null) {
+         LOG.error("Null change listener");
+         throw new IllegalArgumentException("null listener");
+      }
+      listeners.add(ChangeListener.class, listener);
+   }
 
    /**
     * Returns the complete name of the game being runned.
     */
    public String getGame() {
       return game;
+   }
+   
+   /**
+    * Defines the name of the game this run is on.
+    */
+   public void setGame(String game) {
+      this.game = game;
+      fireChangeEvent();
    }
 
    /**
@@ -223,4 +247,13 @@ public class Run {
       }
    }
    
+   /**
+    * Fires an event to every listening change listeners.
+    */
+   private void fireChangeEvent() {
+      ChangeListener[] array = listeners.getListeners(ChangeListener.class);
+      for (ChangeListener listener : array) {
+         listener.stateChanged(new ChangeEvent(this));
+      }
+   }
 }

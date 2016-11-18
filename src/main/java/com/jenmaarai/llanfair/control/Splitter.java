@@ -13,13 +13,17 @@ public class Splitter {
    
    private static final Logger LOG = LoggerFactory.getLogger(Splitter.class);
 
-   private Run run = new Run();
+   private Run        run   = new Run();
    private List<Time> times = new ArrayList<>();
    
-   private long start = 0L;
+   private long  start = 0L;
    private State state = State.READY;
    
    private EventListenerList listeners = new EventListenerList();
+   
+   public Splitter() {
+      run.addChangeListener((e) -> fireSplitEvent(SplitListener::onRunUpdate));
+   }
 
    /**
     * Returns the run being used by this splitter.
