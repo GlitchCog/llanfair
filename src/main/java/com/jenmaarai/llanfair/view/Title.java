@@ -3,6 +3,7 @@ package com.jenmaarai.llanfair.view;
 import com.jenmaarai.llanfair.conf.Property;
 import com.jenmaarai.llanfair.control.Splitter;
 import com.jenmaarai.sidekick.swing.GBC;
+import com.jenmaarai.sidekick.swing.RichLabel;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import javax.swing.JLabel;
 
 public class Title extends Block {
    
-   private JLabel game;
+   private RichLabel game;
 
    public Title(Splitter splitter) {
       super(splitter);
@@ -19,7 +20,7 @@ public class Title extends Block {
    }
    
    private void build() {
-      game = new JLabel("", JLabel.CENTER);
+      game = new RichLabel("", JLabel.CENTER);
       
       setLayout(new GridBagLayout());
       add(game, GBC.grid(0, 0).anchor(GBC.CENTER)

@@ -150,6 +150,7 @@ public class Llanfair extends JFrame {
     * Creates and places the UI element of this application.
     */
    private void createView() {
+      System.setProperty("sidekick.aatext", "true");
       BlockView blockView = new BlockView(splitter);
       splitter.addSplitListener(blockView);
       getContentPane().add(blockView);
