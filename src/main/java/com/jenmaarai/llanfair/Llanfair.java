@@ -3,6 +3,7 @@ package com.jenmaarai.llanfair;
 import com.jenmaarai.llanfair.conf.Property;
 import com.jenmaarai.llanfair.control.Input;
 import com.jenmaarai.llanfair.control.Splitter;
+import com.jenmaarai.llanfair.model.Run;
 import com.jenmaarai.llanfair.view.BlockView;
 import com.jenmaarai.sidekick.locale.Localizer;
 import java.awt.event.WindowAdapter;
@@ -51,6 +52,8 @@ public class Llanfair extends JFrame {
       setShutdownHook();
       createView();
       resolve();
+      
+      splitter.setRun(Run.readFile(Paths.get("alttp.xml")));
    }
    
    /**
@@ -112,9 +115,6 @@ public class Llanfair extends JFrame {
                if (state != Splitter.State.READY) {
                   splitter.reset(false);
                }
-            // TODO: Temp test until run editing is available
-            } else if (event.getKeyCode() == NativeKeyEvent.VC_T) {
-               splitter.getRun().setGame("Zelda");
             }
          }
          @Override public void nativeKeyReleased(NativeKeyEvent e) {}
@@ -139,6 +139,7 @@ public class Llanfair extends JFrame {
                   LOG.warn("Failed to clean native hook ({})", x.getMessage());
                }
             }
+            splitter.getRun().writeFile(Paths.get("alttp.xml"));
             Property.save(false);
             Property.save(true);
             LOG.info("...Application closed");

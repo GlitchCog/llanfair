@@ -1,21 +1,15 @@
 package com.jenmaarai.llanfair.model;
 
 import com.jenmaarai.sidekick.time.Time;
+import java.io.Serializable;
 import javax.swing.Icon;
 
-public class Segment {
+public class Segment implements Serializable {
    
-   /**
-    * Current version of this class.
-    * This value should be updated whenever changes made to this class break 
-    * backward compatibility.
-    */
-   public static final long serialVersionUid = 20161104L;
-   
-   private Icon   icon = null;
-   private String name = "";
-   private Time   time = null;
-   private Time   best = null;
+   private Icon icon = null;
+   private String name = null;
+   private Time time = null;
+   private Time best = null;
 
    /**
     * Returns the icon associated to this segment, can be null.
@@ -56,9 +50,6 @@ public class Segment {
     * Sets the name of this segment, cannot be null but can be empty.
     */
    public void setName(String name) {
-      if (name == null) {
-         throw new IllegalArgumentException("null name");
-      }
       this.name = name;
    }
 
@@ -75,6 +66,5 @@ public class Segment {
    public void setBest(Time best) {
       this.best = best;
    }
-   
    
 }

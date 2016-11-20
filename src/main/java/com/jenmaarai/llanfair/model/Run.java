@@ -1,6 +1,16 @@
 package com.jenmaarai.llanfair.model;
 
 import com.jenmaarai.sidekick.time.Time;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.event.ChangeEvent;
@@ -9,24 +19,32 @@ import javax.swing.event.EventListenerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Run {
+public class Run implements Serializable {
+   
+   /**
+    * Current version of this class.
+    * This value should be updated whenever changes made to this class break 
+    * backward compatibility.
+    */
+   public static final long serialVersionUid = 20161104L;
    
    private static final Logger LOG = LoggerFactory.getLogger(Run.class);
    
-   private String  game         = null;
-   private String  abbreviation = null;
-   private String  category     = null;
-   private String  platform     = null;
-   private String  region       = null;
-   private boolean emulated     = false;
+   private String game = null;
+   private String abbreviation = null;
+   private String category = null;
+   private String platform = null;
+   private String region = null;
+   private boolean emulated = false;
+   private List<Segment> segments = new ArrayList<>();
    
-   private List<Segment>     segments  = new ArrayList<>();
-   private EventListenerList listeners = new EventListenerList();
+   private transient EventListenerList listeners;
    
    /**
     * Creates an empty run containing a single segment.
     */
    public Run() {
+      buildTransientObjects();
       segments.add(new Segment());
    }
    
@@ -65,12 +83,28 @@ public class Run {
    }
 
    /**
+    * Defines the category of this run.
+    */
+   public void setCategory(String category) {
+      this.category = category;
+      fireChangeEvent();
+   }
+
+   /**
     * Returns the platform that this game is being runned on.
     */
    public String getPlatform() {
       return platform;
    }
 
+   /**
+    * Defines the platform this run performs on.
+    */
+   public void setPlatform(String platform) {
+      this.platform = platform;
+      fireChangeEvent();
+   }
+   
    /**
     * Return the region of the game being runned.
     */
@@ -79,10 +113,26 @@ public class Run {
    }
 
    /**
+    * Defines the region of the game being runned.
+    */
+   public void setRegion(String region) {
+      this.region = region;
+      fireChangeEvent();
+   }
+   
+   /**
     * Indicates whether this run takes place on an emulator or not.
     */
    public boolean isEmulated() {
       return emulated;
+   }
+
+   /**
+    * Defines whether this run takes place on an emulator or not.
+    */
+   public void setEmulated(boolean emulated) {
+      this.emulated = emulated;
+      fireChangeEvent();
    }
    
    /**
@@ -247,6 +297,63 @@ public class Run {
       }
    }
    
+   public boolean writeFile(Path path) {
+      if (path == null) {
+         LOG.error("No path defined for current run");
+         throw new IllegalArgumentException("null path");
+      }
+      XStream stream = new XStream();
+      try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+         String xmlOutput = stream.toXML(this);
+         writer.write(xmlOutput);
+      } catch (IOException x) {
+         LOG.error("Error writing file '{}', {}:{}", 
+                  path, x.getClass().getSimpleName(), x.getMessage());
+         return false;
+      } catch (XStreamException x) {
+         LOG.error("Error serializing run to xml, {}:{}", 
+                  x.getClass().getSimpleName(), x.getMessage());
+         return false;
+      }
+      return true;
+   }
+   
+   public static Run readFile(Path path) {
+      if (path == null) {
+         LOG.error("No path defined for current run");
+         throw new IllegalArgumentException("null path");
+      }
+      XStream stream = new XStream();
+      try (BufferedReader reader = Files.newBufferedReader(path)) {
+         return (Run) stream.fromXML(reader);
+      } catch (IOException x) {
+         LOG.error("Error reading file '{}', {}:{}", 
+                  path, x.getClass().getSimpleName(), x.getMessage());
+      } catch (XStreamException x) {
+         LOG.error("Error deserializing xml, {}:{}", 
+                  x.getClass().getSimpleName(), x.getMessage());
+      } catch (ClassCastException x) {
+         LOG.error("Xml does not contain a valid run");
+      }
+      return null;
+   }
+   
+   /**
+    * Method invoked during deserialization of this class.
+    */
+   private void readObject(ObjectInputStream stream)
+                                 throws IOException, ClassNotFoundException {
+      stream.defaultReadObject();
+      buildTransientObjects();
+   }
+   
+   /**
+    * Creates the different transient objects used by this class.
+    */
+   private void buildTransientObjects() {
+      listeners = new EventListenerList();
+   }
+   
    /**
     * Fires an event to every listening change listeners.
     */
@@ -256,4 +363,5 @@ public class Run {
          listener.stateChanged(new ChangeEvent(this));
       }
    }
+   
 }

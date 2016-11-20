@@ -13,16 +13,16 @@ public class Splitter {
    
    private static final Logger LOG = LoggerFactory.getLogger(Splitter.class);
 
-   private Run        run   = new Run();
+   private Run run;
    private List<Time> times = new ArrayList<>();
    
-   private long  start = 0L;
+   private long start = 0L;
    private State state = State.READY;
    
    private EventListenerList listeners = new EventListenerList();
    
    public Splitter() {
-      run.addChangeListener((e) -> fireSplitEvent(SplitListener::onRunUpdate));
+      setRun(null);
    }
 
    /**
@@ -30,6 +30,17 @@ public class Splitter {
     */
    public Run getRun() {
       return run;
+   }
+
+   /**
+    * Sets the run that this splitter should use.
+    * If run is null, uses a new single-segment run.
+    */
+   public final void setRun(Run run) {
+      this.run = (run == null) ? new Run() : run;
+      this.run.addChangeListener(
+              (e) -> fireSplitEvent(SplitListener::onRunUpdate));
+      fireSplitEvent(SplitListener::onRunUpdate);
    }
    
    /**
