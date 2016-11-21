@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.event.ChangeEvent;
@@ -27,6 +26,15 @@ public class Run implements Serializable {
     * backward compatibility.
     */
    public static final long serialVersionUid = 20161104L;
+   
+   /**
+    * XStream XML parser, customized to improve legibility of output.
+    */
+   private static final XStream XSTREAM = new XStream();
+   static {
+      XSTREAM.alias("run", Run.class);
+      XSTREAM.alias("segment", Segment.class);
+   }
    
    private static final Logger LOG = LoggerFactory.getLogger(Run.class);
    
@@ -297,14 +305,19 @@ public class Run implements Serializable {
       }
    }
    
+   /**
+    * Writes this run to the given file.
+    * If the file does not exist, it is created. If it exists, it is 
+    * overwritten without warning. Returns true if serialization was completed
+    * without any problem.
+    */
    public boolean writeFile(Path path) {
       if (path == null) {
          LOG.error("No path defined for current run");
          throw new IllegalArgumentException("null path");
       }
-      XStream stream = new XStream();
       try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-         String xmlOutput = stream.toXML(this);
+         String xmlOutput = XSTREAM.toXML(this);
          writer.write(xmlOutput);
       } catch (IOException x) {
          LOG.error("Error writing file '{}', {}:{}", 
@@ -318,14 +331,17 @@ public class Run implements Serializable {
       return true;
    }
    
+   /**
+    * Deserializes and returns a run read from the given file.
+    * Returns null if the file cannot be read or does not exist.
+    */
    public static Run readFile(Path path) {
       if (path == null) {
          LOG.error("No path defined for current run");
          throw new IllegalArgumentException("null path");
       }
-      XStream stream = new XStream();
       try (BufferedReader reader = Files.newBufferedReader(path)) {
-         return (Run) stream.fromXML(reader);
+         return (Run) XSTREAM.fromXML(reader);
       } catch (IOException x) {
          LOG.error("Error reading file '{}', {}:{}", 
                   path, x.getClass().getSimpleName(), x.getMessage());
@@ -342,7 +358,7 @@ public class Run implements Serializable {
     * Method invoked during deserialization of this class.
     */
    private void readObject(ObjectInputStream stream)
-                                 throws IOException, ClassNotFoundException {
+            throws IOException, ClassNotFoundException {
       stream.defaultReadObject();
       buildTransientObjects();
    }
