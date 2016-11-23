@@ -6,7 +6,6 @@ import com.thoughtworks.xstream.XStreamException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +24,7 @@ public class Run implements Serializable {
     * This value should be updated whenever changes made to this class break 
     * backward compatibility.
     */
-   public static final long serialVersionUid = 20161104L;
+   public static final long CURRENT_VERSION = 20161104L;
    
    /**
     * XStream XML parser, customized to improve legibility of output.
@@ -46,7 +45,8 @@ public class Run implements Serializable {
    private boolean emulated = false;
    private List<Segment> segments = new ArrayList<>();
    
-   private transient EventListenerList listeners;
+   private long version = CURRENT_VERSION;
+   private transient EventListenerList listeners = new EventListenerList();
    
    /**
     * Creates an empty run containing a single segment.
@@ -355,12 +355,21 @@ public class Run implements Serializable {
    }
    
    /**
-    * Method invoked during deserialization of this class.
+    * Method invoked after deserializing an instance of this class.
+    * Checks versioning of deserialized objects and tries to conform older 
+    * versions to the current version if possible.
+    * 
+    * <p>Since there is at the moment only one version of this class, this
+    * method will simply return a new default run if it detects a mismatch
+    * in the run version.
     */
-   private void readObject(ObjectInputStream stream)
-            throws IOException, ClassNotFoundException {
-      stream.defaultReadObject();
+   private Object readResolve() {
+      if (version != CURRENT_VERSION) {
+         LOG.error("Run version obsolete {}", version);
+         return new Run();
+      }
       buildTransientObjects();
+      return this;
    }
    
    /**
