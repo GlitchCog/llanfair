@@ -30,7 +30,11 @@
          <organization>Jenmaarai</organization>
          <organizationUrl>http://jenmaarai.com</organizationUrl>
       </developer>
-   </developers> 
+      <developer>
+         <name>Guillaume 'orion78fr' Turchini</name>
+         <email>guillaume.turchini@gmail.com</email>
+      </developer>
+   </developers>
    
    <scm>
       <connection>scm:git:git@github.com:xunkar/llanfair.git</connection>
@@ -38,7 +42,7 @@
       <url>git@github.com:xunkar/llanfair.git</url>
    </scm>
    
-   <dependencies>      
+   <dependencies>
       <dependency>
          <groupId>com.jenmaarai</groupId>
          <artifactId>sidekick</artifactId>
@@ -50,7 +54,7 @@
          <artifactId>slf4j-api</artifactId>
          <version>1.7.21</version>
       </dependency>
-
+      
       <dependency>
          <groupId>ch.qos.logback</groupId>
          <artifactId>logback-classic</artifactId>
