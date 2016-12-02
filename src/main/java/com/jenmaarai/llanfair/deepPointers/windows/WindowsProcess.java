@@ -4,14 +4,14 @@ import com.jenmaarai.llanfair.deepPointers.Process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WindowsProcess implements Process {
+class WindowsProcess implements Process {
    private static final Logger LOG = LoggerFactory.getLogger(WindowsProcess.class);
    
    private final int pid;
    private final String name;
    private final boolean readable;
    
-   public WindowsProcess(int pid, String name, boolean readable) {
+   WindowsProcess(int pid, String name, boolean readable) {
       this.pid = pid;
       this.name = name;
       this.readable = readable;
