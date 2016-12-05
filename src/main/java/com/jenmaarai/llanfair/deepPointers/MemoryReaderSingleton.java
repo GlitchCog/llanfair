@@ -10,11 +10,15 @@ import java.util.List;
 public class MemoryReaderSingleton {
    private static final Logger LOG = LoggerFactory.getLogger(MemoryReaderSingleton.class);
    
+   /**
+    * Null if not available
+    */
    public static final MemoryReader INSTANCE;
    
    static {
       switch (getOS()) {
          case WINDOWS:
+            LOG.info("OS is Windows");
             INSTANCE = new WindowsMemoryReader();
             break;
          
@@ -47,10 +51,16 @@ public class MemoryReaderSingleton {
       try {
          MemoryReader m = MemoryReaderSingleton.INSTANCE;
       
+         //List<Process> l = m.getProcessWithName("steam");
+         
          List<Process> l = m.getAllProcesses();
       
          for (Process p : l) {
-            LOG.info("Process with pid {} and name {} found", p.getPid(), p.getName());
+            if(p.isReadable()) {
+               LOG.info("Process with pid {} and name {} found", p.getPid(), p.getName());
+            } else {
+               LOG.info("Unreadable process with pid {}", p.getPid());
+            }
          }
       } catch (MemoryReaderException e) {
          LOG.error("Exception got during play with MemoryReader ;)", e);
