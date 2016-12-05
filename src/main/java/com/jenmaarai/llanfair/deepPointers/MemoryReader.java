@@ -7,7 +7,9 @@ import java.util.List;
 public interface MemoryReader {
    List<Process> getAllProcesses() throws MemoryReaderException;
    
-   List<Process> getProcessesWithName(String name) throws MemoryReaderException;
+   List<Process> getAllProcesses(boolean onlyReadable) throws MemoryReaderException;
+   
+   Process getProcessWithName(String name) throws MemoryReaderException;
    
    Process getProcessFromPid(int pid) throws MemoryReaderException;
    
