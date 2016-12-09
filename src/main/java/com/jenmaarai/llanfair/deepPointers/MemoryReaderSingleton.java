@@ -5,6 +5,8 @@ import com.jenmaarai.llanfair.deepPointers.windows.WindowsMemoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.nio.ByteOrder;
 import java.util.List;
 
 public class MemoryReaderSingleton {
@@ -14,6 +16,7 @@ public class MemoryReaderSingleton {
     * Null if not available
     */
    public static final MemoryReader INSTANCE;
+   public static final boolean bigEndian = ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN);
    
    static {
       switch (getOS()) {
@@ -50,16 +53,41 @@ public class MemoryReaderSingleton {
    public static void main(String[] args) {
       try {
          MemoryReader m = MemoryReaderSingleton.INSTANCE;
-      
-         //List<Process> l = m.getProcessWithName("steam");
          
-         List<Process> l = m.getAllProcesses();
-      
+         List<Process> l = m.getAllProcesses(true);
+         
+         Process testProcess = null;
          for (Process p : l) {
-            if(p.isReadable()) {
-               LOG.info("Process with pid {} and name {} found", p.getPid(), p.getName());
-            } else {
-               LOG.info("Unreadable process with pid {}", p.getPid());
+            LOG.info("Process with pid {} and name {} found", p.getPid(), p.getName());
+            if (p.getName().equals("a.exe")) {
+               testProcess = p;
+            }
+         }
+         if (testProcess == null) {
+            throw new MemoryReaderException("Process not found");
+         }
+         
+         if (!testProcess.isReadable()) {
+            throw new MemoryReaderException("Process is unreadable");
+         }
+         
+         while (true) {
+            byte[] mem = m.readMemory(testProcess, 0x600010480L, 4);
+            
+            byte temp;
+            int size = mem.length;
+            if (!bigEndian) {
+               for (int i = 0; i < size / 2; i++) {
+                  temp = mem[i];
+                  mem[i] = mem[size - 1 - i];
+                  mem[size - 1 - i] = temp;
+               }
+            }
+            LOG.info("" + new BigInteger(mem).intValue());
+            try {
+               Thread.sleep(500);
+            } catch (InterruptedException e) {
+               e.printStackTrace();
             }
          }
       } catch (MemoryReaderException e) {
