@@ -5,5 +5,7 @@ public interface Process {
    
    String getName();
    
+   String getTitle();
+   
    boolean isReadable();
 }

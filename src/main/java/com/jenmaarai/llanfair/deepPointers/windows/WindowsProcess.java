@@ -9,12 +9,14 @@ class WindowsProcess implements Process {
    
    private final int pid;
    private final String name;
+   private final String title;
    private final boolean readable;
    
-   WindowsProcess(int pid, String name, boolean readable) {
+   WindowsProcess(int pid, String name, String title, boolean readable) {
       this.pid = pid;
       this.name = name;
       this.readable = readable;
+      this.title = title;
    }
    
    @Override
@@ -25,6 +27,11 @@ class WindowsProcess implements Process {
    @Override
    public String getName() {
       return name;
+   }
+   
+   @Override
+   public String getTitle() {
+      return title;
    }
    
    @Override
