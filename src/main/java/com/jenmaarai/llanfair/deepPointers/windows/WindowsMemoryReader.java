@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WindowsMemoryReader implements MemoryReader {
    private static final Logger LOG = LoggerFactory.getLogger(WindowsMemoryReader.class);
@@ -27,10 +29,16 @@ public class WindowsMemoryReader implements MemoryReader {
     * @return null if error
     */
    private Pointer getProcessHandleFromPid(int pid) {
+      return getProcessHandleFromPid(pid, WindowsConstants.PROCESS_VM_READ | WindowsConstants.PROCESS_QUERY_INFORMATION);
+   }
+   
+   /**
+    * @return null if error
+    */
+   private Pointer getProcessHandleFromPid(int pid, int rights) {
       int error;
       
-      Pointer ph = kernel32.OpenProcess(Constants.PROCESS_VM_READ | Constants.PROCESS_QUERY_INFORMATION,
-            false, pid);
+      Pointer ph = kernel32.OpenProcess(rights, false, pid);
       if ((error = kernel32.GetLastError()) != 0) {
          LOG.debug("Can't open process with PID {}, error {} : {}", pid, error, ErrorCodesToString.get(error));
          return null;
@@ -42,24 +50,32 @@ public class WindowsMemoryReader implements MemoryReader {
    /**
     * @return null if error
     */
-   private String getProcessNameFromProcessHandle(Pointer ph, int pid) {
-      int error;
+   private String getProcessNameFromProcessHandle(Pointer ph) {
       
       byte[] filename = new byte[512];
       
-      int nbRead = psapi.GetModuleBaseNameW(ph, new Pointer(0), filename, 512);
+      psapi.GetModuleBaseNameW(ph, new Pointer(0), filename, 512);
       
-      if ((error = kernel32.GetLastError()) != 0) {
-         LOG.debug("Can't get name of process with PID {}, error {} : {}", pid, error, ErrorCodesToString.get(error));
+      if (kernel32.GetLastError() != 0) {
          return null;
       }
       
       return new String(filename, StandardCharsets.UTF_16LE).trim();
    }
    
-   @Override
-   public List<Process> getAllProcesses() throws MemoryReaderException {
-      return getAllProcesses(false);
+   /**
+    * @return null if error
+    */
+   private String getProcessNameFromPid(int pid){
+      Pointer ph = getProcessHandleFromPid(pid);
+      if(ph != null){
+         try{
+            return getProcessNameFromProcessHandle(ph);
+         } finally {
+            kernel32.CloseHandle(ph);
+         }
+      }
+      return null;
    }
    
    @Override
@@ -78,19 +94,9 @@ public class WindowsMemoryReader implements MemoryReader {
          int pid = processList[i];
          
          if (pid != 0) {
-            Pointer ph = getProcessHandleFromPid(pid);
-            if (ph == null) {
-               // Unreadable process
-               if (!onlyReadable) {
-                  l.add(new WindowsProcess(pid, null, false));
-               }
-            } else {
-               try {
-                  String filename = getProcessNameFromProcessHandle(ph, pid);
-                  l.add(new WindowsProcess(pid, filename, filename != null));
-               } finally {
-                  kernel32.CloseHandle(ph);
-               }
+            Process p = getProcessFromPid(pid);
+            if (p != null && (!onlyReadable || p.isReadable())) {
+               l.add(p);
             }
          }
       }
@@ -99,16 +105,71 @@ public class WindowsMemoryReader implements MemoryReader {
    }
    
    @Override
-   public Process getProcessWithName(String name) throws MemoryReaderException {
-      IntByReference pid = new IntByReference(0);
-      user32.GetWindowThreadProcessId(user32.FindWindowW(null, name), pid);
+   public List<Process> getAllVisibleProcesses() throws MemoryReaderException {
+      List<Process> l = new ArrayList<>();
       
-      return new WindowsProcess(pid.getValue(), "not implemented", true);
+      Map<Integer, String> m = getAllNames();
+      for(Map.Entry<Integer, String> e : m.entrySet()){
+         String name = getProcessNameFromPid(e.getKey());
+         l.add(new WindowsProcess(e.getKey(), name, e.getValue(), true));
+      }
+      
+      return l;
+   }
+   
+   private Map<Integer, String> getAllNames() throws MemoryReaderException {
+      final Map<Integer, String> m = new HashMap<>();
+      
+      User32.WNDENUMPROC f = (hWnd, arg) -> {
+         if (user32.IsWindowVisible(hWnd)) {
+            IntByReference pid = new IntByReference(0);
+            
+            user32.GetWindowThreadProcessId(hWnd, pid);
+            if (kernel32.GetLastError() != 0) {
+               return true;
+            }
+            
+            byte[] buffer = new byte[1024];
+            user32.GetWindowTextW(hWnd, buffer, 1024);
+            if (kernel32.GetLastError() != 0) {
+               return true;
+            }
+            
+            String name = new String(buffer, StandardCharsets.UTF_16LE).trim();
+            if("".equals(name)){
+               // Probably a subwindow
+               return true;
+            }
+            
+            m.put(pid.getValue(), name);
+            
+            LOG.info("{} : {}", pid.getValue(), name);
+            
+         }
+         return true;
+      };
+      
+      if (!user32.EnumWindows(f, null)) {
+         throw new MemoryReaderException("Can't enum windows");
+      }
+      
+      
+      return m;
    }
    
    @Override
-   public Process getProcessFromPid(int pid) throws MemoryReaderException {
-      throw new MemoryReaderException("unimplemented");
+   public Process getProcessFromPid(int pid) {
+      Pointer ph = getProcessHandleFromPid(pid);
+      if (ph == null) {
+         return new WindowsProcess(pid, null, null, false);
+      }
+      try {
+         String filename = getProcessNameFromProcessHandle(ph);
+         
+         return new WindowsProcess(pid, filename, null, filename != null);
+      } finally {
+         kernel32.CloseHandle(ph);
+      }
    }
    
    @Override
