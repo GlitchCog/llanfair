@@ -24,4 +24,9 @@ public interface MemoryReader {
     * @return the byte table at this address with this size
     */
    byte[] readMemory(Process p, long address, int size) throws MemoryReaderException;
+   
+   /**
+    * @return the integer at this memory address, using correct endianness and convert it to long.
+    */
+   long readInteger(Process p, long address, int size) throws MemoryReaderException;
 }

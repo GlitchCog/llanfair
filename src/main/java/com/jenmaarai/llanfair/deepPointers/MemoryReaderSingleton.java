@@ -72,18 +72,7 @@ public class MemoryReaderSingleton {
          }
          
          while (true) {
-            byte[] mem = m.readMemory(testProcess, 0x600010480L, 4);
-            
-            byte temp;
-            int size = mem.length;
-            if (!bigEndian) {
-               for (int i = 0; i < size / 2; i++) {
-                  temp = mem[i];
-                  mem[i] = mem[size - 1 - i];
-                  mem[size - 1 - i] = temp;
-               }
-            }
-            LOG.info("" + new BigInteger(mem).intValue());
+            LOG.info("" + m.readInteger(testProcess, 0x600010480L, 4));
             try {
                Thread.sleep(500);
             } catch (InterruptedException e) {

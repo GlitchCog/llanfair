@@ -1,6 +1,7 @@
 package com.jenmaarai.llanfair.deepPointers.windows;
 
 import com.jenmaarai.llanfair.deepPointers.MemoryReader;
+import com.jenmaarai.llanfair.deepPointers.MemoryReaderSingleton;
 import com.jenmaarai.llanfair.deepPointers.Process;
 import com.jenmaarai.llanfair.deepPointers.exceptions.MemoryReaderException;
 import com.jenmaarai.llanfair.deepPointers.windows.nativeinterface.Kernel32;
@@ -12,6 +13,7 @@ import com.sun.jna.ptr.IntByReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -192,5 +194,22 @@ public class WindowsMemoryReader implements MemoryReader {
       }
       
       return result;
+   }
+   
+   @Override
+   public long readInteger(Process p, long address, int size) throws MemoryReaderException {
+      byte[] mem = this.readMemory(p, address, size);
+      
+      if (!MemoryReaderSingleton.bigEndian) {
+         // Reverse the byte array
+         byte temp;
+         for (int i = 0; i < size / 2; i++) {
+            temp = mem[i];
+            mem[i] = mem[size - 1 - i];
+            mem[size - 1 - i] = temp;
+         }
+      }
+      
+      return new BigInteger(mem).longValue();
    }
 }
