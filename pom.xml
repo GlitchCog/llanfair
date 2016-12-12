@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <groupId>com.jenmaarai</groupId>
    <artifactId>Llanfair</artifactId>
@@ -30,7 +31,11 @@
          <organization>Jenmaarai</organization>
          <organizationUrl>http://jenmaarai.com</organizationUrl>
       </developer>
-   </developers> 
+      <developer>
+         <name>Guillaume 'orion78fr' Turchini</name>
+         <email>guillaume.turchini@gmail.com</email>
+      </developer>
+   </developers>
    
    <scm>
       <connection>scm:git:git@github.com:xunkar/llanfair.git</connection>
@@ -38,7 +43,7 @@
       <url>git@github.com:xunkar/llanfair.git</url>
    </scm>
    
-   <dependencies>      
+   <dependencies>
       <dependency>
          <groupId>com.jenmaarai</groupId>
          <artifactId>sidekick</artifactId>
@@ -50,12 +55,12 @@
          <artifactId>slf4j-api</artifactId>
          <version>1.7.21</version>
       </dependency>
-
+      
       <dependency>
          <groupId>ch.qos.logback</groupId>
          <artifactId>logback-classic</artifactId>
          <version>1.1.7</version>
-      </dependency>   
+      </dependency>
       
       <dependency>
          <groupId>com.1stleg</groupId>
@@ -70,6 +75,12 @@
       </dependency>
       
       <dependency>
+         <groupId>net.java.dev.jna</groupId>
+         <artifactId>jna</artifactId>
+         <version>4.2.2</version>
+      </dependency>
+      
+      <dependency>
          <groupId>com.miglayout</groupId>
          <artifactId>miglayout-swing</artifactId>
          <version>4.2</version>
@@ -78,7 +89,7 @@
    
    <build>
       <finalName>${project.artifactId}-${project.version}</finalName>
-      <plugins>      
+      <plugins>
          <plugin><!-- Sources compilation and exclusions -->
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -106,6 +117,6 @@
             </executions>
          </plugin>
       </plugins>
-      
+   
    </build>
 </project>
