@@ -2,15 +2,14 @@ package com.jenmaarai.llanfair.view;
 
 import com.jenmaarai.llanfair.conf.Property;
 import com.jenmaarai.llanfair.control.Splitter;
-import com.jenmaarai.sidekick.swing.GBC;
 import com.jenmaarai.sidekick.swing.RichLabel;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JLabel;
+import net.miginfocom.swing.MigLayout;
 
 public class Timer extends Block {
 
@@ -26,9 +25,8 @@ public class Timer extends Block {
    private void build() {
       mainTimer = new RichLabel("--", JLabel.RIGHT);
       
-      setLayout(new GridBagLayout());
-      add(mainTimer, GBC.grid(0, 0).anchor(GBC.CENTER)
-                     .fill(GBC.HORIZONTAL).weight(1.0f, 1.0f));
+      setLayout(new MigLayout());
+      add(mainTimer, "right, pushx");
    }
 
    @Override public void onStart() {
