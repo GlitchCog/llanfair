@@ -20,8 +20,8 @@ public interface Psapi extends StdCallLibrary {
     * It's a null terminated unicode string.
     *
     * @param hModule the module to get the name of (0 for the root process)
-    * @param name buffer
-    * @param nSize buffer size
+    * @param name    buffer
+    * @param nSize   buffer size
     * @return 0 if failed, string size if success
     */
    int GetModuleBaseNameW(Pointer hProcess, Pointer hModule, byte[] name, int nSize);

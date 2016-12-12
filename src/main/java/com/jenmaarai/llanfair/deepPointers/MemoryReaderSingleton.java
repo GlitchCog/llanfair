@@ -5,7 +5,6 @@ import com.jenmaarai.llanfair.deepPointers.windows.WindowsMemoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.util.List;
 
@@ -53,6 +52,13 @@ public class MemoryReaderSingleton {
    public static void main(String[] args) {
       try {
          MemoryReader m = MemoryReaderSingleton.INSTANCE;
+         
+         List<Process> l2 = m.getAllVisibleProcesses();
+         
+         for (Process p : l2) {
+            LOG.info("Process with pid {} has a window named {}", p.getPid(), p.getTitle());
+         }
+         
          
          List<Process> l = m.getAllProcesses(true);
          

@@ -11,7 +11,7 @@ public interface MemoryReader {
    List<Process> getAllProcesses(boolean onlyReadable) throws MemoryReaderException;
    
    /**
-    * @return only processes with visible windows (not daemon)
+    * @return only processes with visible windows (not daemon, implies readable)
     */
    List<Process> getAllVisibleProcesses() throws MemoryReaderException;
    

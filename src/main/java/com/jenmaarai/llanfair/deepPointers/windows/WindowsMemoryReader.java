@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class WindowsMemoryReader implements MemoryReader {
    private static final Logger LOG = LoggerFactory.getLogger(WindowsMemoryReader.class);
+   public static final int BUFFER_SIZE = 1024;
    
    Kernel32 kernel32 = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class);
    User32 user32 = (User32) Native.loadLibrary("user32", User32.class);
@@ -54,9 +55,9 @@ public class WindowsMemoryReader implements MemoryReader {
     */
    private String getProcessNameFromProcessHandle(Pointer ph) {
       
-      byte[] filename = new byte[512];
+      byte[] filename = new byte[BUFFER_SIZE];
       
-      psapi.GetModuleBaseNameW(ph, new Pointer(0), filename, 512);
+      psapi.GetModuleBaseNameW(ph, new Pointer(0), filename, BUFFER_SIZE);
       
       if (kernel32.GetLastError() != 0) {
          return null;
@@ -68,10 +69,10 @@ public class WindowsMemoryReader implements MemoryReader {
    /**
     * @return null if error
     */
-   private String getProcessNameFromPid(int pid){
+   private String getProcessNameFromPid(int pid) {
       Pointer ph = getProcessHandleFromPid(pid);
-      if(ph != null){
-         try{
+      if (ph != null) {
+         try {
             return getProcessNameFromProcessHandle(ph);
          } finally {
             kernel32.CloseHandle(ph);
@@ -84,10 +85,10 @@ public class WindowsMemoryReader implements MemoryReader {
    public List<Process> getAllProcesses(boolean onlyReadable) throws MemoryReaderException {
       List<Process> l = new ArrayList<>();
       
-      int[] processList = new int[1024];
+      int[] processList = new int[BUFFER_SIZE];
       IntByReference nbRead = new IntByReference(0);
       
-      if (!psapi.EnumProcesses(processList, 1024, nbRead)) {
+      if (!psapi.EnumProcesses(processList, BUFFER_SIZE, nbRead)) {
          LOG.error("Can't enumerate processes");
          throw new MemoryReaderException("Process enumeration unavailable");
       }
@@ -111,7 +112,7 @@ public class WindowsMemoryReader implements MemoryReader {
       List<Process> l = new ArrayList<>();
       
       Map<Integer, String> m = getAllNames();
-      for(Map.Entry<Integer, String> e : m.entrySet()){
+      for (Map.Entry<Integer, String> e : m.entrySet()) {
          String name = getProcessNameFromPid(e.getKey());
          l.add(new WindowsProcess(e.getKey(), name, e.getValue(), true));
       }
@@ -131,22 +132,19 @@ public class WindowsMemoryReader implements MemoryReader {
                return true;
             }
             
-            byte[] buffer = new byte[1024];
-            user32.GetWindowTextW(hWnd, buffer, 1024);
+            byte[] buffer = new byte[BUFFER_SIZE];
+            user32.GetWindowTextW(hWnd, buffer, BUFFER_SIZE);
             if (kernel32.GetLastError() != 0) {
                return true;
             }
             
             String name = new String(buffer, StandardCharsets.UTF_16LE).trim();
-            if("".equals(name)){
+            if ("".equals(name)) {
                // Probably a subwindow
                return true;
             }
             
             m.put(pid.getValue(), name);
-            
-            LOG.info("{} : {}", pid.getValue(), name);
-            
          }
          return true;
       };
