@@ -1,4 +1,4 @@
-package com.jenmaarai.llanfair.deepPointers.windows.nativeinterface;
+package com.jenmaarai.llanfair.deepPointers.windows.nativeInterface;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
