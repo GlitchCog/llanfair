@@ -32,38 +32,21 @@ public class LinuxMemoryReader implements MemoryReader {
       List<Process> l = new ArrayList<>();
       
       File parent = new File("/proc");
-      File[] childs = parent.listFiles();
-      if (childs == null) {
-         throw new MemoryReaderException("Can't list directory");
+      File[] children = parent.listFiles();
+      if (children == null) {
+         throw new MemoryReaderException("Can't list /proc directory");
       }
       
-      for (File f : childs) {
+      for (File f : children) {
          if (f.getName().matches("[0-9]+")) {
             int pid = Integer.parseInt(f.getName());
             
-            File cmdFile = new File("/proc/" + pid + "/cmdline");
-            String cmdline;
-            
-            try (InputStream is = new FileInputStream(cmdFile)) {
-               byte[] buf = new byte[BUFFER_SIZE];
-               int readBytes = is.read(buf);
-               if (readBytes <= 0) {
-                  throw new IOException("Nothing to read from this reader");
-               }
-               cmdline = new String(buf, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-               LOG.debug("Exception got during reading of command line args of process {} : {}", pid, e);
-               continue;
-            }
-            
-            String filename = cmdline.isEmpty() ? "" : cmdline.split("\u0000")[0];
+            String filename = getNameFromPid(pid);
             
             // This is a process
             File memFile = new File("/proc/" + pid + "/mem");
             
             if (memFile.canRead()) {
-               // Get name
-               
                l.add(new LinuxProcess(pid, filename, "", true));
             } else {
                if (!onlyReadable) {
@@ -83,7 +66,27 @@ public class LinuxMemoryReader implements MemoryReader {
    
    @Override
    public Process getProcessFromPid(int pid) throws MemoryReaderException {
-      return new LinuxProcess(pid, "", "", false);
+      String name = getNameFromPid(pid);
+      return new LinuxProcess(pid, name, "", false);
+   }
+   
+   private String getNameFromPid(int pid) {
+      File cmdFile = new File("/proc/" + pid + "/cmdline");
+      String cmdline;
+      
+      try (InputStream is = new FileInputStream(cmdFile)) {
+         byte[] buf = new byte[BUFFER_SIZE];
+         int readBytes = is.read(buf);
+         if (readBytes <= 0) {
+            throw new IOException("Nothing to read from this reader");
+         }
+         cmdline = new String(buf, StandardCharsets.UTF_8);
+      } catch (IOException e) {
+         LOG.debug("Exception got during reading of command line args of process {} : {}", pid, e);
+         return null;
+      }
+      
+      return cmdline.isEmpty() ? "" : cmdline.split("\u0000")[0];
    }
    
    @Override
@@ -93,7 +96,7 @@ public class LinuxMemoryReader implements MemoryReader {
       iovec local = new iovec(nativeMem, size);
       iovec remote = new iovec(new Pointer(address), size);
       
-      if(libC.process_vm_readv(p.getPid(), local, 1, remote, 1, 0) != size){
+      if (libC.process_vm_readv(p.getPid(), local, 1, remote, 1, 0) != size) {
          libC.perror("");
          throw new MemoryReaderException("Can't read?");
       }
