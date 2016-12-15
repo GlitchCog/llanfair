@@ -83,8 +83,8 @@ public class MemoryReaderSingleton {
             throw new MemoryReaderException("Process is unreadable");
          }
          
-         while (true) {
-            LOG.info("" + m.readInteger(testProcess, 0x2508010, 4));
+         while (!Thread.interrupted()) {
+            LOG.info("" + m.readInteger(testProcess, 0x217a010, 4));
             try {
                Thread.sleep(500);
             } catch (InterruptedException e) {
