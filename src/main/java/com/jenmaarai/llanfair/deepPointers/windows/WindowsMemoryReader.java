@@ -24,9 +24,9 @@ public class WindowsMemoryReader implements MemoryReader {
    private static final Logger LOG = LoggerFactory.getLogger(WindowsMemoryReader.class);
    public static final int BUFFER_SIZE = 1024;
    
-   Kernel32 kernel32 = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class);
-   User32 user32 = (User32) Native.loadLibrary("user32", User32.class);
-   Psapi psapi = (Psapi) Native.loadLibrary("Psapi", Psapi.class);
+   private Kernel32 kernel32 = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class);
+   private User32 user32 = (User32) Native.loadLibrary("user32", User32.class);
+   private Psapi psapi = (Psapi) Native.loadLibrary("Psapi", Psapi.class);
    
    /**
     * @return null if error
