@@ -1,6 +1,7 @@
 package com.jenmaarai.llanfair.deepPointers;
 
 import com.jenmaarai.llanfair.deepPointers.exceptions.MemoryReaderException;
+import com.jenmaarai.llanfair.deepPointers.linux.LinuxMemoryReader;
 import com.jenmaarai.llanfair.deepPointers.windows.WindowsMemoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,11 @@ public class MemoryReaderSingleton {
          case WINDOWS:
             LOG.info("OS is Windows");
             INSTANCE = new WindowsMemoryReader();
+            break;
+         
+         case LINUX:
+            LOG.info("OS is Linux");
+            INSTANCE = new LinuxMemoryReader();
             break;
          
          default:
@@ -65,7 +71,7 @@ public class MemoryReaderSingleton {
          Process testProcess = null;
          for (Process p : l) {
             LOG.info("Process with pid {} and name {} found", p.getPid(), p.getName());
-            if (p.getName().equals("a.exe")) {
+            if (p.getName().contains("a.exe")) {
                testProcess = p;
             }
          }
@@ -78,7 +84,7 @@ public class MemoryReaderSingleton {
          }
          
          while (true) {
-            LOG.info("" + m.readInteger(testProcess, 0x600010480L, 4));
+            LOG.info("" + m.readInteger(testProcess, 0x2508010, 4));
             try {
                Thread.sleep(500);
             } catch (InterruptedException e) {
