@@ -12,7 +12,7 @@ public interface Kernel32 extends StdCallLibrary {
     * @param rights  the rights wanted for this process
     * @param inherit false
     * @return a pointer to the process handle
-    * @see com.jenmaarai.llanfair.deepPointers.windows.Constants for the rights
+    * @see com.jenmaarai.llanfair.deepPointers.windows.WindowsConstants for the rights
     */
    Pointer OpenProcess(int rights, boolean inherit, int pid);
    
