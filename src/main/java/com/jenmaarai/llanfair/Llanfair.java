@@ -136,7 +136,7 @@ public class Llanfair extends JFrame {
                try {
                   GlobalScreen.unregisterNativeHook();
                } catch (NativeHookException y) {
-                  LOG.warn("Failed to clean native hook ({})", x.getMessage());
+                  LOG.warn("Failed to clean native hook ({})", y.getMessage());
                }
             }
             splitter.getRun().writeFile(Paths.get("alttp.xml"));
