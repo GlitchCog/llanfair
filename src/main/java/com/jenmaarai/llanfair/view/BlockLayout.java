@@ -24,7 +24,8 @@ public class BlockLayout {
     */
    public static BlockLayout defaultLayout() {
       BlockLayout blockLayout = new BlockLayout();
-      blockLayout.mainLayout.add(new Chunk(0, 0, Timer.class));
+      blockLayout.mainLayout.add(new Chunk(0, 0, Title.class));
+      blockLayout.mainLayout.add(new Chunk(0, 1, Timer.class));
       return blockLayout;
    }
    
