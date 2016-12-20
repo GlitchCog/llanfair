@@ -82,8 +82,7 @@ public class Llanfair extends JFrame {
          Localizer.error(this, "errorDirectoryCreate", x.getMessage());
          System.exit(ERROR_DIRECTORY_CREATE);
       }
-      Property.load("settings/default.lls", false);
-      Property.load("themes/default.llt", true);
+      Property.initialize();
    }
    
    /**

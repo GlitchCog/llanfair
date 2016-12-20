@@ -2,12 +2,9 @@ package com.jenmaarai.llanfair.conf;
 
 import com.jenmaarai.llanfair.control.Input;
 import com.jenmaarai.llanfair.view.BlockLayout;
-import com.jenmaarai.sidekick.config.Configuration;
-import com.jenmaarai.sidekick.error.LineParserException;
-import java.awt.Color;
 import java.awt.Font;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -18,60 +15,73 @@ public enum Property {
    /**
     * Whether this application should always be on top of other applications.
     */
-   alwaysOnTop(Boolean.class, false, false),
+   alwaysOnTop(false, false),
    
    /**
     * Key stroke used to split the run, defaults to the spacebar.
     */
-   keySplit(Input.class, new Input(57), false),
+   keySplit(new Input(57), false),
    
    /**
     * Key stroke used to reset the run, defaults to the letter R.
     */
-   keyReset(Input.class, new Input(19), false),
+   keyReset(new Input(19), false),
    
    /**
     * Complete layout of the application.
     */
-   layout(BlockLayout.class, BlockLayout.defaultLayout(), true),
+   layout(BlockLayout.defaultLayout(), true),
    
    /**
     * Font for the Title block.
     */
-   titleFont(Font.class, Font.decode("Arial 26"), true),
+   titleFont(Font.decode("Arial 26"), true),
    
    /**
     * Background color for the Timer block.
     */
-   timerColorBackground(Color.class, null, true),
+   timerColorBackground(null, true),
    
    /**
     * Main font for the Timer block.
     */
-   timerMainFont(Font.class, Font.decode("Arial 36"), true),
+   timerMainFont(Font.decode("Arial 36"), true),
    
    /**
     * Screen coordinate of the application top left corner, along the x axis.
     */
-   positionX(Integer.class, 0, true),
+   positionX(0, true),
    
    /**
     * Screen coordinate of the application top left corner, along the y axis.
     */
-   positionY(Integer.class, 0, true);
+   positionY(0, true);
    
    private static final Logger LOG = LoggerFactory.getLogger(Property.class);
    
    private static final Map<Boolean, Configuration> STORES = new HashMap<>();
    
-   private final Class<?> type;
    private final Object defaultValue;
    private final boolean isTheme;
    
-   private Property(Class<?> type, Object defaultValue, boolean isTheme) {
-      this.type = type;
+   private Property(Object defaultValue, boolean isTheme) {
       this.defaultValue = defaultValue;
       this.isTheme = isTheme;
+   }
+   
+   /**
+    * Initializes both settings and theme properties. This method must be 
+    * invoked as soon as possible during the application startup to make sure
+    * that properties are accessible.
+    */
+   public static void initialize() {
+      STORES.put(true, new Configuration());
+      STORES.put(false, new Configuration());
+      
+      for (Property property : values()) {
+         STORES.get(property.isTheme)
+               .define(property.name(), property.defaultValue);
+      }
    }
    
    /**
@@ -80,39 +90,20 @@ public enum Property {
     * If the new property file cannot be read, it is discarded and no changes
     * have been made to the values of the properties.
     * 
-    * <p>However, if no values have been loaded yet, the default 
-    * developer-provided configuration will be kept to ensure the application 
-    * has everything it needs. 
-    * 
-    * <p>If theme is true, the configuration file will be loaded as a theme,
-    * otherwise it will be loaded as a set of settings.
+    * <p>If {@code theme} is true, the configuration file will be loaded as a
+    * theme, otherwise it will be loaded as a set of settings.
     */
    public static boolean load(String file, boolean theme) {
-      Configuration configuration = new Configuration(file, new Parser());
-      for (Property p : values()) {
-         if (p.isTheme == theme) {
-            configuration.define(p.name(), p.type, p.defaultValue);
-         }
+      Configuration configuration = STORES.get(theme);
+      if (configuration == null) {
+         LOG.error("Configuration has not been initialized");
+         throw new IllegalStateException("configuration not initialized");
       }
       try {
-         if (configuration.load()) {
-            STORES.put(theme, configuration);
-            return true;
-         } else {
-            LOG.warn("Cannot find '{}' reverting to previous state", file);
-            return false;
-         }
-      } catch (IOException x) {
-         LOG.error("Cannot read '{}' cause: {}", file, x.getMessage());
+         configuration.load(Paths.get(file));
+         return true;
+      } catch (IOException | IllegalArgumentException x) {
          return false;
-      } catch (LineParserException x) {
-         LOG.error("Cannot parse '{}' cause: {}", file, x.toString());
-         return false;
-      } finally {
-         // Ensure default configuration exists
-         if (!STORES.containsKey(theme)) {
-            STORES.put(theme, configuration);
-         }
       }
    }
    
@@ -128,14 +119,13 @@ public enum Property {
    public static boolean save(boolean theme) {
       Configuration configuration = STORES.get(theme);
       if (configuration == null) {
+         LOG.error("Configuration has not been initialized");
          throw new IllegalStateException("configuration not initialized");
       }
       try {
          configuration.save();
          return true;
-      } catch (IOException x) {
-         File file = configuration.getPath();
-         LOG.error("Cannot write '{}' cause: {}", file, x.getMessage());
+      } catch (IOException | IllegalArgumentException x) {
          return false;
       }
    }
@@ -164,9 +154,6 @@ public enum Property {
       Configuration configuration = STORES.get(isTheme);
       if (configuration == null) {
          throw new IllegalArgumentException("configuration not initialized");
-      }
-      if (!type.isInstance(value)) {
-         throw new IllegalArgumentException("value is of illegal type");
       }
       configuration.set(name(), value);
    }
