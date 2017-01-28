@@ -4,9 +4,9 @@ import com.jenmaarai.llanfair.deepPointers.MemoryReader;
 import com.jenmaarai.llanfair.deepPointers.MemoryReaderSingleton;
 import com.jenmaarai.llanfair.deepPointers.Process;
 import com.jenmaarai.llanfair.deepPointers.exceptions.MemoryReaderException;
-import com.jenmaarai.llanfair.deepPointers.windows.nativeinterface.Kernel32;
-import com.jenmaarai.llanfair.deepPointers.windows.nativeinterface.Psapi;
-import com.jenmaarai.llanfair.deepPointers.windows.nativeinterface.User32;
+import com.jenmaarai.llanfair.deepPointers.windows.nativeInterface.Kernel32;
+import com.jenmaarai.llanfair.deepPointers.windows.nativeInterface.Psapi;
+import com.jenmaarai.llanfair.deepPointers.windows.nativeInterface.User32;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -24,9 +24,9 @@ public class WindowsMemoryReader implements MemoryReader {
    private static final Logger LOG = LoggerFactory.getLogger(WindowsMemoryReader.class);
    public static final int BUFFER_SIZE = 1024;
    
-   Kernel32 kernel32 = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class);
-   User32 user32 = (User32) Native.loadLibrary("user32", User32.class);
-   Psapi psapi = (Psapi) Native.loadLibrary("Psapi", Psapi.class);
+   private Kernel32 kernel32 = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class);
+   private User32 user32 = (User32) Native.loadLibrary("user32", User32.class);
+   private Psapi psapi = (Psapi) Native.loadLibrary("Psapi", Psapi.class);
    
    /**
     * @return null if error
