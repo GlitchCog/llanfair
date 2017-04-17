@@ -5,6 +5,7 @@ import com.jenmaarai.llanfair.control.Splitter;
 import com.jenmaarai.sidekick.swing.RichLabel;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +33,10 @@ public class Timer extends Block {
    @Override public void onStart() {
       mainTimer.setForeground(Color.BLUE);
       callback = Executors.newSingleThreadScheduledExecutor();
-      Runnable task = () -> mainTimer.setText("" + splitter.getElapsed());
+      Runnable task = () -> {
+         mainTimer.setText("" + splitter.getElapsed());
+         Toolkit.getDefaultToolkit().sync();
+      };
       callback.scheduleAtFixedRate(task, 0L, 10L, TimeUnit.MILLISECONDS);
    }
 
